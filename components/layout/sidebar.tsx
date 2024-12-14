@@ -12,38 +12,39 @@ import {
 } from "lucide-react"
 
 interface SidebarProps {
-  organization?: {
-    id: string
-    name: string
-    slug: string
-  }
+  organizationSlug: string
 }
 
-export function Sidebar({ organization }: SidebarProps) {
+export function Sidebar({ organizationSlug }: SidebarProps) {
+
+  console.log("organizationSlug");
+  console.log(organizationSlug);
+  
+
   const pathname = usePathname()
 
   const routes = [
     {
       label: "Dashboard",
       icon: LayoutDashboard,
-      href: `/app/${organization?.slug}`,
+      href: `/app/${organizationSlug}`,
     },
     {
       label: "Team",
       icon: Users,
-      href: `/app/${organization?.slug}/team`,
+      href: `/app/${organizationSlug}/team`,
     },
     {
       label: "Settings",
       icon: Settings,
-      href: `/app/${organization?.slug}/settings`,
+      href: `/app/${organizationSlug}/settings`,
     },
   ]
 
   return (
     <div className="flex h-full flex-col gap-4">
       <div className="px-3 py-2">
-        <OrganizationSwitcher currentOrganization={organization} />
+        <OrganizationSwitcher currentOrganizationSlug={organizationSlug} />
       </div>
       <div className="flex-1 space-y-1 px-3">
         {routes.map((route) => (

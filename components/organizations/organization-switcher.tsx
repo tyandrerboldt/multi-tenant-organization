@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Check, ChevronsUpDown, PlusCircle } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Check, ChevronsUpDown, PlusCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -13,41 +13,49 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "@/components/ui/command"
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
-import { getUserOrganizations } from "@/lib/actions/organization"
+} from "@/components/ui/popover";
+import { getUserOrganizations } from "@/lib/actions/organization";
 
 type Organization = {
-  id: string
-  name: string
-  slug: string
-}
+  id: string;
+  name: string;
+  slug: string;
+};
 
 interface OrganizationSwitcherProps {
-  currentOrganization?: Organization
+  currentOrganizationSlug?: string;
 }
 
-export function OrganizationSwitcher({ currentOrganization }: OrganizationSwitcherProps) {
-  const router = useRouter()
-  const [open, setOpen] = useState(false)
-  const [organizations, setOrganizations] = useState<Organization[]>([])
+export function OrganizationSwitcher({
+  currentOrganizationSlug,
+}: OrganizationSwitcherProps) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [currentOrganization, setCurrentOrganization] =
+    useState<Organization>();
 
   useEffect(() => {
     const loadOrganizations = async () => {
       try {
-        const orgs = await getUserOrganizations()
-        setOrganizations(orgs)
+        const orgs = await getUserOrganizations();
+        setOrganizations(orgs);
+        const organization = orgs.find(
+          (org) => org.slug === currentOrganizationSlug
+        );
+        organization && setCurrentOrganization(organization);
       } catch (error) {
-        console.error("Failed to load organizations:", error)
+        console.error("Failed to load organizations:", error);
       }
-    }
+    };
 
-    loadOrganizations()
-  }, [])
+    loadOrganizations();
+  }, []);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -73,13 +81,13 @@ export function OrganizationSwitcher({ currentOrganization }: OrganizationSwitch
                 <CommandItem
                   key={org.id}
                   onSelect={() => {
-                    router.push(`/app/${org.slug}`)
-                    setOpen(false)
+                    router.push(`/app/${org.slug}`);
+                    setOpen(false);
                   }}
                   className="text-sm"
                 >
                   {org.name}
-                  {currentOrganization?.id === org.id && (
+                  {currentOrganizationSlug === org.slug && (
                     <Check className="ml-auto h-4 w-4" />
                   )}
                 </CommandItem>
@@ -89,8 +97,8 @@ export function OrganizationSwitcher({ currentOrganization }: OrganizationSwitch
             <CommandGroup>
               <CommandItem
                 onSelect={() => {
-                  router.push("/create-organization")
-                  setOpen(false)
+                  router.push("/create-organization");
+                  setOpen(false);
                 }}
               >
                 <PlusCircle className="mr-2 h-4 w-4" />
@@ -101,5 +109,5 @@ export function OrganizationSwitcher({ currentOrganization }: OrganizationSwitch
         </Command>
       </PopoverContent>
     </Popover>
-  )
+  );
 }
