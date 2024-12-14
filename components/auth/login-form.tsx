@@ -36,7 +36,7 @@ export function LoginForm() {
         return
       }
 
-      router.push("/dashboard")
+      router.push("/app")
       router.refresh()
     } catch (error) {
       setError("Something went wrong. Please try again.")

@@ -54,7 +54,7 @@ export function DeleteOrganization({ organization }: DeleteOrganizationProps) {
       const result = await deleteOrganization(organization.id)
       if (result.success) {
         setIsOpen(false)
-        router.push("/dashboard")
+        router.push("/app")
         router.refresh()
       }
     } catch (error) {

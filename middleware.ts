@@ -13,7 +13,7 @@ export async function middleware(request: NextRequest) {
 
   // Redirect authenticated users away from public paths
   if (isAuthenticated && isPublicPath) {
-    return NextResponse.redirect(new URL("/dashboard", request.url))
+    return NextResponse.redirect(new URL("/app", request.url))
   }
 
   // Redirect unauthenticated users to login

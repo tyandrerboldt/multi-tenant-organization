@@ -45,7 +45,7 @@ export function OrganizationSettingsForm({ organization }: OrganizationSettingsF
       if (result.success) {
         setIsSaved(true)
         if (data.slug !== organization.slug) {
-          router.push(`/dashboard/${data.slug}/settings`)
+          router.push(`/app/${data.slug}/settings`)
         }
         router.refresh()
       }
@@ -85,7 +85,7 @@ export function OrganizationSettingsForm({ organization }: OrganizationSettingsF
         )}
         <p className="text-sm text-gray-500">
           Used in your organization&apos;s URL: 
-          <span className="font-mono">domain.com/dashboard/[slug]</span>
+          <span className="font-mono">domain.com/app/[slug]</span>
         </p>
       </div>
 

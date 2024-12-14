@@ -52,7 +52,7 @@ export async function updateOrganizationSettings(
     },
   })
 
-  revalidatePath(`/dashboard/${data.slug}`)
+  revalidatePath(`/app/${data.slug}`)
   return { success: true, organization }
 }
 
@@ -80,6 +80,6 @@ export async function deleteOrganization(organizationId: string) {
     where: { id: organizationId },
   })
 
-  revalidatePath("/dashboard")
+  revalidatePath("/app")
   return { success: true }
 }

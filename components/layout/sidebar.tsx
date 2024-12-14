@@ -26,17 +26,17 @@ export function Sidebar({ organization }: SidebarProps) {
     {
       label: "Dashboard",
       icon: LayoutDashboard,
-      href: `/dashboard/${organization?.slug}`,
+      href: `/app/${organization?.slug}`,
     },
     {
       label: "Team",
       icon: Users,
-      href: `/dashboard/${organization?.slug}/team`,
+      href: `/app/${organization?.slug}/team`,
     },
     {
       label: "Settings",
       icon: Settings,
-      href: `/dashboard/${organization?.slug}/settings`,
+      href: `/app/${organization?.slug}/settings`,
     },
   ]
 

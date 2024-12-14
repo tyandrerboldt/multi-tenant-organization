@@ -32,7 +32,7 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
   })
 
   if (!organization) {
-    redirect("/dashboard/new")
+    redirect("/create-organization")
   }
 
   const membership = await prisma.membership.findFirst({

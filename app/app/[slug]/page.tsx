@@ -28,7 +28,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
   })
 
   if (!organization) {
-    redirect("/dashboard/new")
+    redirect("/create-organization")
   }
 
   return (

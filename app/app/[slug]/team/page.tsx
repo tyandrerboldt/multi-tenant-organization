@@ -33,7 +33,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
   })
 
   if (!organization) {
-    redirect("/dashboard/new")
+    redirect("/create-organization")
   }
 
   const members = await getTeamMembers(organization.id)

@@ -73,7 +73,7 @@ export function OrganizationSwitcher({ currentOrganization }: OrganizationSwitch
                 <CommandItem
                   key={org.id}
                   onSelect={() => {
-                    router.push(`/dashboard/${org.slug}`)
+                    router.push(`/app/${org.slug}`)
                     setOpen(false)
                   }}
                   className="text-sm"
@@ -89,7 +89,7 @@ export function OrganizationSwitcher({ currentOrganization }: OrganizationSwitch
             <CommandGroup>
               <CommandItem
                 onSelect={() => {
-                  router.push("/dashboard/new")
+                  router.push("/create-organization")
                   setOpen(false)
                 }}
               >

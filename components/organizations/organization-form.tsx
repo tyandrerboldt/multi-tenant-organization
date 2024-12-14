@@ -34,7 +34,7 @@ export function OrganizationForm() {
     try {
       const result = await createOrganization(data)
       if (result.success) {
-        router.push(`/dashboard/${result.organization.slug}`)
+        router.push(`/app/${result.organization.slug}`)
         router.refresh()
       }
     } catch (error) {
@@ -71,7 +71,7 @@ export function OrganizationForm() {
         )}
         <p className="text-sm text-gray-500">
           This will be used in your organization&apos;s URL: 
-          <span className="font-mono">domain.com/dashboard/[slug]</span>
+          <span className="font-mono">domain.com/app/[slug]</span>
         </p>
       </div>
 
