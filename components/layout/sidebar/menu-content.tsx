@@ -23,6 +23,15 @@ export function MenuContent({
   className 
 }: MenuContentProps) {
   const pathname = usePathname()
+
+  const isMenuItemActive = (item: MenuItem): boolean => {
+    if (item.href === pathname) return true
+    if (item.submenu) {
+      return item.submenu.some(subItem => subItem.href === pathname)
+    }
+    return false
+  }
+
   const activeMenuData = items.find((item) => item.label === activeMenu)
 
   return (
@@ -55,7 +64,7 @@ export function MenuContent({
           <MenuButton
             key={item.label}
             item={item}
-            isActive={pathname === item.href}
+            isActive={isMenuItemActive(item)}
             onClick={() => onMenuSelect(item)}
           />
         ))

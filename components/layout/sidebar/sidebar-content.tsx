@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
+import { useRouter, usePathname } from "next/navigation"
 import { OrganizationSwitcher } from "@/components/organizations/organization-switcher"
 import { MenuItem, SidebarProps } from "./types"
 import { MenuContent } from "./menu-content"
@@ -19,13 +19,35 @@ export function SidebarContent({
   onNavigate 
 }: SidebarContentProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
-  const [isTransitioning, setIsTransitioning] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const routes = createMenuItems(organizationSlug)
+
+  // Função para encontrar o menu pai com base na URL atual
+  const findParentMenu = (path: string) => {
+    for (const route of routes) {
+      if (route.submenu) {
+        const hasActiveChild = route.submenu.some(
+          submenu => submenu.href === path
+        )
+        if (hasActiveChild) {
+          return route.label
+        }
+      }
+    }
+    return null
+  }
+
+  // Configura o estado inicial após a montagem do componente
+  useEffect(() => {
+    const parentMenu = findParentMenu(pathname)
+    setActiveMenu(parentMenu)
+    setMounted(true)
+  }, [pathname])
 
   const handleMenuSelect = (item: MenuItem) => {
     if (item.submenu) {
-      setIsTransitioning(true)
       setActiveMenu(item.label)
     } else if (item.href) {
       router.push(item.href)
@@ -34,8 +56,11 @@ export function SidebarContent({
   }
 
   const handleBack = () => {
-    setIsTransitioning(true)
     setActiveMenu(null)
+  }
+
+  if (!mounted) {
+    return null // Evita renderização durante SSR
   }
 
   return (
@@ -44,34 +69,28 @@ export function SidebarContent({
         <OrganizationSwitcher currentOrganizationSlug={organizationSlug} />
       </div>
       <div className="relative flex-1 overflow-hidden">
-        <MenuContent
-          items={routes}
-          activeMenu={activeMenu}
-          onMenuSelect={handleMenuSelect}
-          onBack={handleBack}
-          className={cn(
-            "absolute inset-0 transition-transform duration-300 ease-in-out",
-            isTransitioning && (activeMenu
-              ? "translate-x-0"
-              : "translate-x-full"
-            ),
-            !isTransitioning && !activeMenu && "-translate-x-full"
-          )}
-        />
-        <MenuContent
-          items={routes}
-          activeMenu={null}
-          onMenuSelect={handleMenuSelect}
-          onBack={handleBack}
-          className={cn(
-            "absolute inset-0 transition-transform duration-300 ease-in-out",
-            isTransitioning && (activeMenu
-              ? "-translate-x-full"
-              : "translate-x-0"
-            ),
-            !isTransitioning && !activeMenu && "translate-x-0"
-          )}
-        />
+        <div className="absolute inset-0">
+          <MenuContent
+            items={routes}
+            activeMenu={activeMenu}
+            onMenuSelect={handleMenuSelect}
+            onBack={handleBack}
+            className={cn(
+              "transition-transform duration-300 ease-in-out",
+              activeMenu ? "translate-x-0" : "-translate-x-full"
+            )}
+          />
+          <MenuContent
+            items={routes}
+            activeMenu={null}
+            onMenuSelect={handleMenuSelect}
+            onBack={handleBack}
+            className={cn(
+              "absolute inset-0 transition-transform duration-300 ease-in-out",
+              activeMenu ? "translate-x-full" : "translate-x-0"
+            )}
+          />
+        </div>
       </div>
     </div>
   )
