@@ -58,6 +58,10 @@ export async function updateOrganizationSettings(
 
 export async function deleteOrganization(organizationId: string) {
   const session = await getServerSession(authOptions)
+  console.log("organizationId");
+  console.log(organizationId);
+  console.log("session");
+  console.log(session);
   
   if (!session?.user?.id) {
     throw new Error("Unauthorized")
