@@ -6,6 +6,9 @@ export default async function AppLayout({
   children,
 }: {
   children: React.ReactNode;
+  params: {
+    slug: string;
+  };
 }) {
   const session = await getServerSession(authOptions);
 
