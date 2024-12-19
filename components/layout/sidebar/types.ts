@@ -5,6 +5,7 @@ export interface MenuItem {
   icon: LucideIcon
   href?: string
   submenu?: MenuItem[]
+  onClick?: () => void
 }
 
 export interface SidebarProps {

@@ -11,6 +11,14 @@ interface MenuButtonProps {
 }
 
 export function MenuButton({ item, isActive, onClick }: MenuButtonProps) {
+  const handleClick = () => {
+    if (item.onClick) {
+      item.onClick()
+    } else {
+      onClick()
+    }
+  }
+
   return (
     <Button
       variant={isActive ? "secondary" : "ghost"}
@@ -18,7 +26,7 @@ export function MenuButton({ item, isActive, onClick }: MenuButtonProps) {
         "w-full justify-start",
         isActive && "bg-secondary"
       )}
-      onClick={onClick}
+      onClick={handleClick}
     >
       <item.icon className="mr-2 h-4 w-4" />
       {item.label}

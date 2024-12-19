@@ -88,5 +88,6 @@ model Domain {
 enum Role {
   OWNER
   ADMIN
+  EDITOR
   MEMBER
 }

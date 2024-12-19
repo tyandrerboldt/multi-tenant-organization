@@ -13,6 +13,7 @@ interface MenuContentProps {
   onMenuSelect: (item: MenuItem) => void
   onBack: () => void
   className?: string
+  isMain?: boolean
 }
 
 export function MenuContent({ 
@@ -20,7 +21,8 @@ export function MenuContent({
   activeMenu, 
   onMenuSelect, 
   onBack,
-  className 
+  className,
+  isMain = false
 }: MenuContentProps) {
   const pathname = usePathname()
 
@@ -35,9 +37,20 @@ export function MenuContent({
   const activeMenuData = items.find((item) => item.label === activeMenu)
 
   return (
-    <div className={cn("space-y-1", className)}>
-      {activeMenu ? (
-        <div className="space-y-4">
+    <div className={cn(
+      "absolute inset-0 px-3 transition-all duration-300 ease-in-out",
+      className,
+      isMain ? (
+        activeMenu ? "-translate-x-full opacity-0" : "translate-x-0 opacity-100"
+      ) : (
+        activeMenu ? "translate-x-0 opacity-100 delay-150" : "translate-x-full opacity-0"
+      )
+    )}>
+      {!isMain ? (
+        <div className={cn(
+          "space-y-4 transition-all duration-300",
+          activeMenu ? "opacity-100" : "opacity-0"
+        )}>
           <div className="flex items-center space-x-2">
             <Button
               variant="ghost"
@@ -60,14 +73,19 @@ export function MenuContent({
           </div>
         </div>
       ) : (
-        items.map((item) => (
-          <MenuButton
-            key={item.label}
-            item={item}
-            isActive={isMenuItemActive(item)}
-            onClick={() => onMenuSelect(item)}
-          />
-        ))
+        <div className={cn(
+          "space-y-1 transition-all duration-300",
+          !activeMenu ? "opacity-100" : "opacity-0"
+        )}>
+          {items.map((item) => (
+            <MenuButton
+              key={item.label}
+              item={item}
+              isActive={isMenuItemActive(item)}
+              onClick={() => onMenuSelect(item)}
+            />
+          ))}
+        </div>
       )}
     </div>
   )

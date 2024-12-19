@@ -2,11 +2,11 @@ import { redirect } from "next/navigation"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { Card } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
 import { InviteMemberForm } from "@/components/team/invite-member-form"
 import { MemberList } from "@/components/team/member-list"
 import { getTeamMembers } from "@/lib/actions/team"
 import { getServerSession } from "next-auth/next"
+import { Role } from "@prisma/client"
 
 interface TeamPageProps {
   params: {
@@ -37,6 +37,12 @@ export default async function TeamPage({ params }: TeamPageProps) {
   }
 
   const members = await getTeamMembers(organization.id)
+  
+  const currentMembership = members.find(
+    member => member.user.id === session.user.id
+  )
+  
+  const isOwner = currentMembership?.role === Role.OWNER
 
   return (
     <div className="space-y-6">
@@ -53,13 +59,16 @@ export default async function TeamPage({ params }: TeamPageProps) {
           organizationId={organization.id}
           members={members}
           currentUserId={session.user.id}
+          isOwner={isOwner}
         />
       </Card>
 
-      <Card className="p-6">
-        <h2 className="text-lg font-semibold mb-4">Invite New Member</h2>
-        <InviteMemberForm organizationId={organization.id} />
-      </Card>
+      {isOwner && (
+        <Card className="p-6">
+          <h2 className="text-lg font-semibold mb-4">Invite New Member</h2>
+          <InviteMemberForm organizationId={organization.id} />
+        </Card>
+      )}
     </div>
   )
 }

@@ -5,9 +5,11 @@ import {
   Settings,
   Users,
   Globe,
-  Home
+  Home,
+  LogOut
 } from "lucide-react"
 import { MenuItem } from "./types"
+import { signOut } from "next-auth/react"
 
 export const createMenuItems = (organizationSlug: string): MenuItem[] => [
   {
@@ -35,5 +37,10 @@ export const createMenuItems = (organizationSlug: string): MenuItem[] => [
         href: `/app/${organizationSlug}/settings/domains`,
       },
     ],
+  },
+  {
+    label: "Sair",
+    icon: LogOut,
+    onClick: () => signOut({ callbackUrl: "/login" }),
   },
 ]

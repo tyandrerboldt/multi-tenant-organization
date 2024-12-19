@@ -22,8 +22,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { removeMember } from "@/lib/actions/team"
+import { removeMember, updateMemberRole } from "@/lib/actions/team"
 import { UserX } from "lucide-react"
+import { RoleSelect } from "./role-select"
+import { ROLE_TRANSLATIONS } from "@/lib/constants/rotes"
 
 interface Member {
   id: string
@@ -40,6 +42,7 @@ interface MemberListProps {
   organizationId: string
   members: Member[]
   currentUserId: string
+  isOwner: boolean
   onMemberRemoved?: () => void
 }
 
@@ -47,10 +50,12 @@ export function MemberList({
   organizationId, 
   members, 
   currentUserId,
+  isOwner,
   onMemberRemoved 
 }: MemberListProps) {
   const [isRemoving, setIsRemoving] = useState(false)
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null)
+  const [isUpdating, setIsUpdating] = useState(false)
 
   const handleRemoveMember = async () => {
     if (!selectedMemberId) return
@@ -64,6 +69,17 @@ export function MemberList({
     } finally {
       setIsRemoving(false)
       setSelectedMemberId(null)
+    }
+  }
+
+  const handleRoleChange = async (memberId: string, newRole: Role) => {
+    try {
+      setIsUpdating(true)
+      await updateMemberRole(organizationId, memberId, newRole)
+    } catch (error) {
+      console.error("Failed to update member role:", error)
+    } finally {
+      setIsUpdating(false)
     }
   }
 
@@ -92,9 +108,19 @@ export function MemberList({
                   <div className="text-sm text-gray-500">{member.user.email}</div>
                 </div>
               </TableCell>
-              <TableCell>{member.role}</TableCell>
               <TableCell>
-                {member.role !== Role.OWNER && member.user.id !== currentUserId && (
+                {member.role === Role.OWNER ? (
+                  <span>{ROLE_TRANSLATIONS[member.role]}</span>
+                ) : (
+                  <RoleSelect
+                    currentRole={member.role}
+                    onRoleChange={(role) => handleRoleChange(member.id, role)}
+                    disabled={!isOwner || isUpdating || member.user.id === currentUserId}
+                  />
+                )}
+              </TableCell>
+              <TableCell>
+                {member.role !== Role.OWNER && member.user.id !== currentUserId && isOwner && (
                   <Button
                     variant="ghost"
                     size="sm"

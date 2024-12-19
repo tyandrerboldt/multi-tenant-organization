@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma"
 import { authOptions } from "@/lib/auth"
 import { Role } from "@prisma/client"
 import { InviteMemberFormData } from "@/lib/validations/team"
+import { revalidatePath } from "next/cache"
 
 export async function getTeamMembers(organizationId: string) {
   const session = await getServerSession(authOptions)
@@ -148,4 +149,68 @@ export async function removeMember(organizationId: string, memberId: string) {
   })
 
   return { success: true }
+}
+
+
+export async function updateMemberRole(
+  organizationId: string,
+  memberId: string,
+  newRole: Role
+) {
+  const session = await getServerSession(authOptions)
+  
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized")
+  }
+
+  // Verificar se o usuário atual é OWNER
+  const currentMembership = await prisma.membership.findFirst({
+    where: {
+      organizationId,
+      userId: session.user.id,
+      role: Role.OWNER,
+    },
+  })
+
+  if (!currentMembership) {
+    throw new Error("Only organization owners can change member roles")
+  }
+
+  // Não permitir alterar o papel do OWNER
+  const targetMembership = await prisma.membership.findFirst({
+    where: {
+      id: memberId,
+      organizationId,
+    },
+  })
+
+  if (!targetMembership) {
+    throw new Error("Member not found")
+  }
+
+  if (targetMembership.role === Role.OWNER) {
+    throw new Error("Cannot change the owner's role")
+  }
+
+  const updatedMembership = await prisma.membership.update({
+    where: {
+      id: memberId,
+    },
+    data: {
+      role: newRole,
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+        },
+      },
+    },
+  })
+
+  revalidatePath(`/app/${organizationId}/team`)
+  return { success: true, membership: updatedMembership }
 }
