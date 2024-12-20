@@ -1,3 +1,6 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -24,6 +27,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -32,37 +36,52 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model User {
-  id            String         @id @default(cuid())
+  id            String       @id @default(cuid())
   name          String?
-  email         String?        @unique
-  password      String?
+  email         String?      @unique
   emailVerified DateTime?
   image         String?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  
+  password      String?
   accounts      Account[]
   sessions      Session[]
   memberships   Membership[]
 }
 
-model Organization {
-  id          String       @id @default(cuid())
-  name        String
-  slug        String       @unique
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+enum Role {
+  OWNER
+  ADMIN
+  EDITOR
+  MEMBER
+}
 
-  memberships Membership[]
-  domains        Domain[]
+enum Plan {
+  FREE
+  STARTER
+  PRO
+  ENTERPRISE
+}
+
+model Organization {
+  id                   String       @id @default(cuid())
+  name                 String
+  slug                 String       @unique
+  plan                 Plan         @default(FREE)
+  stripeCustomerId     String?      @unique
+  stripeSubscriptionId String?      @unique
+  memberships          Membership[]
+  domains             Domain[]
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
 }
 
 model Membership {
   id             String       @id @default(cuid())
-  role           Role         @default(MEMBER)
+  role           Role
   user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId         String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -71,6 +90,8 @@ model Membership {
   updatedAt      DateTime     @updatedAt
 
   @@unique([userId, organizationId])
+  @@index([organizationId])
+  @@index([userId])
 }
 
 model Domain {
@@ -82,12 +103,4 @@ model Domain {
   updatedAt      DateTime     @updatedAt
 
   @@index([organizationId])
-}
-
-
-enum Role {
-  OWNER
-  ADMIN
-  EDITOR
-  MEMBER
 }

@@ -6,7 +6,8 @@ import {
   Users,
   Globe,
   Home,
-  LogOut
+  LogOut,
+  Currency
 } from "lucide-react"
 import { MenuItem } from "./types"
 import { signOut } from "next-auth/react"
@@ -35,6 +36,11 @@ export const createMenuItems = (organizationSlug: string): MenuItem[] => [
         label: "Domains",
         icon: Globe,
         href: `/app/${organizationSlug}/settings/domains`,
+      },
+      {
+        label: "Billing",
+        icon: Currency,
+        href: `/app/${organizationSlug}/settings/billing`,
       },
     ],
   },

@@ -5,6 +5,7 @@ import { OrganizationFormData } from "@/lib/validations/organization"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { Role } from "@prisma/client"
+import { createStripeCustomer } from "@/lib/stripe"
 
 export async function createOrganization(data: OrganizationFormData) {
   const session = await getServerSession(authOptions)
@@ -21,10 +22,17 @@ export async function createOrganization(data: OrganizationFormData) {
     throw new Error("Organization slug already exists")
   }
 
+  // Create Stripe customer
+  const stripeCustomer = await createStripeCustomer(
+    session.user.email!,
+    data.slug
+  )
+
   const organization = await prisma.organization.create({
     data: {
       name: data.name,
       slug: data.slug,
+      stripeCustomerId: stripeCustomer.id,
       memberships: {
         create: {
           userId: session.user.id,

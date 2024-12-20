@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { ROLE_TRANSLATIONS, EDITABLE_ROLES } from "@/lib/constants/rotes"
+import { ROLE_TRANSLATIONS, EDITABLE_ROLES } from "@/lib/constants/roles"
 
 interface RoleSelectProps {
   currentRole: Role

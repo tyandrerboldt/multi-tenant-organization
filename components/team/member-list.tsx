@@ -25,7 +25,7 @@ import {
 import { removeMember, updateMemberRole } from "@/lib/actions/team"
 import { UserX } from "lucide-react"
 import { RoleSelect } from "./role-select"
-import { ROLE_TRANSLATIONS } from "@/lib/constants/rotes"
+import { ROLE_TRANSLATIONS } from "@/lib/constants/roles"
 
 interface Member {
   id: string

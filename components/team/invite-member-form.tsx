@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { inviteMember } from "@/lib/actions/team";
-import { EDITABLE_ROLES, ROLE_TRANSLATIONS } from "@/lib/constants/rotes";
+import { EDITABLE_ROLES, ROLE_TRANSLATIONS } from "@/lib/constants/roles";
 import {
   InviteMemberFormData,
   inviteMemberSchema,
