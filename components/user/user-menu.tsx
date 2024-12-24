@@ -44,7 +44,7 @@ export function UserMenu({ user }: UserMenuProps) {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
-            <Link href="/account" className="w-full cursor-pointer">
+            <Link href="/app/account" className="w-full cursor-pointer">
               <Settings className="mr-2 h-4 w-4" />
               <span>Conta</span>
             </Link>
