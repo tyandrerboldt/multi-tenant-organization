@@ -1,16 +1,14 @@
-"use client"
+"use client";
 
 import {
+  Currency,
+  Globe,
+  Home,
   LayoutDashboard,
   Settings,
   Users,
-  Globe,
-  Home,
-  LogOut,
-  Currency
-} from "lucide-react"
-import { MenuItem } from "./types"
-import { signOut } from "next-auth/react"
+} from "lucide-react";
+import { MenuItem } from "./types";
 
 export const createMenuItems = (organizationSlug: string): MenuItem[] => [
   {
@@ -44,9 +42,4 @@ export const createMenuItems = (organizationSlug: string): MenuItem[] => [
       },
     ],
   },
-  {
-    label: "Sair",
-    icon: LogOut,
-    onClick: () => signOut({ callbackUrl: "/login" }),
-  },
-]
+];
