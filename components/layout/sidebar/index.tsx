@@ -2,6 +2,7 @@
 
 import { MobileSidebar } from "./mobile-sidebar";
 import { SidebarContent } from "./sidebar-content";
+import { SidebarProps } from "./types";
 
 export function Sidebar({ organizationSlug }: SidebarProps) {
   return (

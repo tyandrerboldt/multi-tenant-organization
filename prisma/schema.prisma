@@ -47,9 +47,11 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?
+  
   accounts      Account[]
   sessions      Session[]
   memberships   Membership[]
+  passwordResetTokens PasswordResetToken[]
 }
 
 enum Role {
@@ -103,4 +105,15 @@ model Domain {
   updatedAt      DateTime     @updatedAt
 
   @@index([organizationId])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  expires   DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }
