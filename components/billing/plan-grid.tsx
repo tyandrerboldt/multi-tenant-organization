@@ -1,37 +1,57 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { PlanCard } from "./plan-card"
-import { PLANS, PlanDetails } from "@/lib/constants/plans"
-import { Plan } from "@prisma/client"
-import { updateSubscription } from "@/lib/actions/billing"
-import { loadStripe } from "@stripe/stripe-js"
+import { useEffect, useState } from "react";
+import { PlanCard } from "./plan-card";
+import { PLANS, PlanDetails } from "@/lib/constants/plans";
+import { Plan } from "@prisma/client";
+import { updateSubscription } from "@/lib/actions/billing";
+import { loadStripe } from "@stripe/stripe-js";
 
 interface PlanGridProps {
-  organizationId: string
-  currentPlan: Plan
-  stripeCustomerId?: string | null
+  organizationId: string;
+  currentPlan: Plan;
+  stripeCustomerId?: string | null;
+  stripeSubscriptionId?: string | null;
 }
 
-export function PlanGrid({ organizationId, currentPlan, stripeCustomerId }: PlanGridProps) {
-  const [isLoading, setIsLoading] = useState(false)
+export function PlanGrid({
+  organizationId,
+  currentPlan,
+  stripeCustomerId,
+  stripeSubscriptionId,
+}: PlanGridProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const hasActiveSubscription = !!stripeSubscriptionId;
+
+  useEffect(() => {
+    console.log(organizationId);
+    console.log(currentPlan);
+    console.log(stripeCustomerId);
+    console.log(stripeSubscriptionId);
+
+    Object.entries(PLANS).forEach(([key, plan]) => {
+      console.log(plan);
+    })
+  }, []);
 
   const handlePlanSelect = async (plan: PlanDetails) => {
     try {
-      setIsLoading(true)
+      setIsLoading(true);
 
+      // Se está fazendo downgrade para o plano gratuito
       if (plan.price === 0) {
-        // Downgrade para plano gratuito
-        await updateSubscription(organizationId, "FREE")
-        return
+        await updateSubscription(organizationId, "FREE");
+        return;
       }
 
       if (!stripeCustomerId) {
-        throw new Error("Stripe customer ID not found")
+        throw new Error("ID do cliente Stripe não encontrado");
       }
 
-      const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
-      if (!stripe) throw new Error("Failed to load Stripe")
+      const stripe = await loadStripe(
+        process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
+      );
+      if (!stripe) throw new Error("Falha ao carregar Stripe");
 
       const { sessionId } = await fetch("/api/create-checkout-session", {
         method: "POST",
@@ -43,16 +63,16 @@ export function PlanGrid({ organizationId, currentPlan, stripeCustomerId }: Plan
           organizationId,
           customerId: stripeCustomerId,
         }),
-      }).then(res => res.json())
+      }).then((res) => res.json());
 
-      const { error } = await stripe.redirectToCheckout({ sessionId })
-      if (error) throw error
+      const { error } = await stripe.redirectToCheckout({ sessionId });
+      if (error) throw error;
     } catch (error) {
-      console.error("Error selecting plan:", error)
+      console.error("Erro ao selecionar plano:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -61,10 +81,11 @@ export function PlanGrid({ organizationId, currentPlan, stripeCustomerId }: Plan
           key={key}
           plan={plan}
           currentPlan={currentPlan}
+          hasActiveSubscription={hasActiveSubscription}
           onSelect={handlePlanSelect}
           disabled={isLoading}
         />
       ))}
     </div>
-  )
+  );
 }
