@@ -3,6 +3,7 @@ import { NextResponse } from "next/server"
 import { stripe } from "@/lib/stripe"
 import { prisma } from "@/lib/prisma"
 import { Plan } from "@prisma/client"
+import { revalidatePath } from "next/cache"
 
 const PRICE_TO_PLAN: Record<string, Plan> = {
   [process.env.NEXT_PUBLIC_STRIPE_STARTER_PRICE_ID!]: "STARTER",
@@ -46,12 +47,20 @@ export async function POST(req: Request) {
             plan,
           },
         })
+
+        // Revalidate the billing page
+        revalidatePath(`/app/${session.metadata.slug}/settings/billing`)
         break
       }
 
       case "customer.subscription.deleted":
       case "customer.subscription.updated": {
         const subscription = event.data.object
+        const organization = await prisma.organization.findFirst({
+          where: { stripeSubscriptionId: subscription.id }
+        })
+
+        if (!organization) break
 
         if (event.type === "customer.subscription.deleted") {
           await prisma.organization.update({
@@ -75,6 +84,9 @@ export async function POST(req: Request) {
             data: { plan },
           })
         }
+
+        // Revalidate the billing page
+        revalidatePath(`/app/${organization.slug}/settings/billing`)
         break
       }
     }

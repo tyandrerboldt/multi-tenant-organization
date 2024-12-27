@@ -1,20 +1,29 @@
-import { PaymentHistoryDialog } from "@/components/billing/payment-history-dialog";
-import { PlanGrid } from "@/components/billing/plan-grid";
-import { Card } from "@/components/ui/card";
-import { getPaymentHistory } from "@/lib/actions/billing";
-import { authOptions } from "@/lib/auth";
-import { PLANS } from "@/lib/constants/plans";
-import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { Card } from "@/components/ui/card";
+import { PlanGrid } from "@/components/billing/plan-grid";
+import { PaymentHistoryDialog } from "@/components/billing/payment-history-dialog";
+import { getPaymentHistory } from "@/lib/actions/billing";
+import { PLANS } from "@/lib/constants/plans";
+import { Alert } from "@/components/ui/alert";
+import { CheckCircle2, XCircle } from "lucide-react";
 
 interface BillingPageProps {
   params: {
     slug: string;
   };
+  searchParams: {
+    success?: string;
+    canceled?: string;
+  };
 }
 
-export default async function BillingPage({ params }: BillingPageProps) {
+export default async function BillingPage({
+  params,
+  searchParams,
+}: BillingPageProps) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user) {
@@ -41,6 +50,18 @@ export default async function BillingPage({ params }: BillingPageProps) {
 
   return (
     <div className="space-y-6">
+      {searchParams.success && (
+        <Alert className="bg-green-50 text-green-800 border-green-200">
+          Assinatura realizada com sucesso!
+        </Alert>
+      )}
+
+      {searchParams.canceled && (
+        <Alert className="bg-yellow-50 text-yellow-800 border-yellow-200">
+          Processo de assinatura cancelado.
+        </Alert>
+      )}
+
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold">Planos e Assinaturas</h1>
@@ -51,14 +72,12 @@ export default async function BillingPage({ params }: BillingPageProps) {
         <PaymentHistoryDialog payments={payments} />
       </div>
 
-      <Card className="p-6">
-        <PlanGrid
-          organizationId={organization.id}
-          currentPlan={organization.plan}
-          stripeCustomerId={organization.stripeCustomerId}
-          stripeSubscriptionId={organization.stripeSubscriptionId}
-        />
-      </Card>
+      <PlanGrid
+        organizationId={organization.id}
+        currentPlan={organization.plan}
+        stripeCustomerId={organization.stripeCustomerId}
+        stripeSubscriptionId={organization.stripeSubscriptionId}
+      />
     </div>
   );
 }
