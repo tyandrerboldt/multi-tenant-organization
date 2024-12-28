@@ -64,19 +64,19 @@ export function OrganizationSwitcher({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          aria-label="Select organization"
+          aria-label="Selecionar"
           className="w-full"
         >
-          {currentOrganization?.name ?? "Select organization"}
+          {currentOrganization?.name ?? "Selecionar"}
           <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[250px] p-0">
         <Command>
-          <CommandInput placeholder="Search organization..." />
+          <CommandInput placeholder="Buscar..." />
           <CommandList>
-            <CommandEmpty>No organization found.</CommandEmpty>
-            <CommandGroup heading="Organizations">
+            <CommandEmpty>Nada encontrado.</CommandEmpty>
+            <CommandGroup heading="Organizações">
               {organizations.map((org) => (
                 <CommandItem
                   key={org.id}
@@ -102,7 +102,7 @@ export function OrganizationSwitcher({
                 }}
               >
                 <PlusCircle className="mr-2 h-4 w-4" />
-                Create Organization
+                Criar organização
               </CommandItem>
             </CommandGroup>
           </CommandList>

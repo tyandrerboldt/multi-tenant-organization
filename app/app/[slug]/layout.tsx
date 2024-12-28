@@ -1,11 +1,11 @@
-import { Sidebar } from "@/components/layout/sidebar";
+import { Sidebar } from "@/components/layout/sidebar"
 
 export default async function OrganizationLayout({
   children,
   params,
 }: {
-  children: React.ReactNode;
-  params: { slug: string };
+  children: React.ReactNode
+  params: { slug: string }
 }) {
   return (
     <div className="flex h-screen">
@@ -14,5 +14,5 @@ export default async function OrganizationLayout({
         <div className="container mx-auto py-6">{children}</div>
       </main>
     </div>
-  );
+  )
 }
