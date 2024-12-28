@@ -1,14 +1,12 @@
-import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { Card } from "@/components/ui/card";
-import { PlanGrid } from "@/components/billing/plan-grid";
 import { PaymentHistoryDialog } from "@/components/billing/payment-history-dialog";
-import { getPaymentHistory } from "@/lib/actions/billing";
-import { PLANS } from "@/lib/constants/plans";
+import { PlanGrid } from "@/components/billing/plan-grid";
 import { Alert } from "@/components/ui/alert";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { getPaymentHistory } from "@/lib/actions/billing";
+import { authOptions } from "@/lib/auth";
+import { PLANS } from "@/lib/constants/plans";
+import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
 
 interface BillingPageProps {
   params: {

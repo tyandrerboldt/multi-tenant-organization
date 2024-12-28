@@ -1,8 +1,6 @@
 "use client"
 
-import { useState } from "react"
-import { formatDistanceToNow } from "date-fns"
-import { ptBR } from "date-fns/locale"
+import { useState, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -12,29 +10,76 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import { Receipt } from "lucide-react"
-import { PaymentHistory } from "@/lib/types/billing"
+import { PaymentHistory, PaymentHistoryFilterParams, SortField, SortOrder } from "@/lib/types/billing"
+import { PaymentHistoryTable } from "./payment-history/table"
+import { PaymentHistoryPagination } from "./payment-history/pagination"
+import { PaymentHistoryFilters } from "./payment-history/filters"
 
 interface PaymentHistoryDialogProps {
   payments: PaymentHistory[]
 }
 
+const ITEMS_PER_PAGE = 2
+
 export function PaymentHistoryDialog({ payments }: PaymentHistoryDialogProps) {
   const [open, setOpen] = useState(false)
+  const [filters, setFilters] = useState<PaymentHistoryFilterParams>({
+    search: "",
+    sortBy: "created",
+    sortOrder: "desc",
+    page: 1,
+  })
 
-  const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(amount / 100)
+  const filteredAndSortedPayments = useMemo(() => {
+    let result = [...payments]
+
+    // Aplicar filtro de pesquisa
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase()
+      result = result.filter(
+        (payment) =>
+          payment.description.toLowerCase().includes(searchLower) ||
+          payment.status.toLowerCase().includes(searchLower)
+      )
+    }
+
+    // Aplicar ordenação
+    result.sort((a, b) => {
+      const multiplier = filters.sortOrder === "desc" ? -1 : 1
+
+      switch (filters.sortBy) {
+        case "created":
+          return (a.created - b.created) * multiplier
+        case "amount":
+          return (a.amount - b.amount) * multiplier
+        case "status":
+          return a.status.localeCompare(b.status) * multiplier
+        default:
+          return 0
+      }
+    })
+
+    return result
+  }, [payments, filters])
+
+  // Paginação
+  const totalPages = Math.ceil(filteredAndSortedPayments.length / ITEMS_PER_PAGE)
+  const paginatedPayments = filteredAndSortedPayments.slice(
+    (filters.page - 1) * ITEMS_PER_PAGE,
+    filters.page * ITEMS_PER_PAGE
+  )
+
+  const handleSearchChange = (search: string) => {
+    setFilters((prev) => ({ ...prev, search, page: 1 }))
+  }
+
+  const handleSortChange = (sortBy: SortField, sortOrder: SortOrder) => {
+    setFilters((prev) => ({ ...prev, sortBy, sortOrder }))
+  }
+
+  const handlePageChange = (page: number) => {
+    setFilters((prev) => ({ ...prev, page }))
   }
 
   return (
@@ -53,50 +98,28 @@ export function PaymentHistoryDialog({ payments }: PaymentHistoryDialogProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="max-h-[60vh] overflow-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Data</TableHead>
-                <TableHead>Plano</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Valor</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {payments.map((payment) => (
-                <TableRow key={payment.id}>
-                  <TableCell>
-                    {formatDistanceToNow(new Date(payment.created * 1000), {
-                      addSuffix: true,
-                      locale: ptBR,
-                    })}
-                  </TableCell>
-                  <TableCell>{payment.description}</TableCell>
-                  <TableCell>
-                    <span
-                      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-                        payment.status === "succeeded"
-                          ? "bg-green-50 text-green-700"
-                          : payment.status === "failed"
-                          ? "bg-red-50 text-red-700"
-                          : "bg-yellow-50 text-yellow-700"
-                      }`}
-                    >
-                      {payment.status === "succeeded"
-                        ? "Confirmado"
-                        : payment.status === "failed"
-                        ? "Falhou"
-                        : "Pendente"}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {formatAmount(payment.amount)}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+        <div className="space-y-4">
+          <PaymentHistoryFilters
+            search={filters.search}
+            onSearchChange={handleSearchChange}
+            sortBy={filters.sortBy}
+            sortOrder={filters.sortOrder}
+            onSortChange={handleSortChange}
+          />
+
+          <div className="max-h-[60vh] overflow-auto">
+            <PaymentHistoryTable payments={paginatedPayments} />
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex justify-center mt-4">
+              <PaymentHistoryPagination
+                currentPage={filters.page}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
