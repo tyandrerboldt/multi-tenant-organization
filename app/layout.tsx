@@ -4,6 +4,8 @@ import { Inter } from 'next/font/google';
 import { SessionProvider } from "@/components/providers/session-provider";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { getUserPreferences } from "@/lib/actions/preferences";
+import { PreferencesProvider } from '@/providers/preferences-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -18,12 +20,18 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const session = await getServerSession(authOptions);
+  const preferences = session?.user ? await getUserPreferences() : null;
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <SessionProvider session={session}>
-          {children}
+          <PreferencesProvider
+            defaultTheme={preferences?.theme || "system"}
+            defaultOrganizationId={preferences?.defaultOrganizationId}
+          >
+            {children}
+          </PreferencesProvider>
         </SessionProvider>
       </body>
     </html>

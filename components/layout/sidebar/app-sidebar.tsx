@@ -4,7 +4,8 @@ import { OrganizationSwitcher } from "@/components/organizations/organization-sw
 import { UserMenu } from "@/components/user/user-menu";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { MenuContent } from "./menu-content";
 import { createAppMenuItems } from "./menu-items/app-menu-items";
 import { MenuItem } from "./types";
@@ -15,18 +16,40 @@ interface AppSidebarProps {
 }
 
 export function AppSidebar({ onNavigate, className }: AppSidebarProps) {
+  const router = useRouter();
+  const pathname = usePathname();
   const { data: session } = useSession();
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const routes = createAppMenuItems();
+
+  const findParentMenu = (path: string) => {
+    for (const route of routes) {
+      if (route.submenu) {
+        const hasActiveChild = route.submenu.some(
+          (submenu) => submenu.href === path
+        );
+        if (hasActiveChild) {
+          return route.label;
+        }
+      }
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    const parentMenu = findParentMenu(pathname);
+    setActiveMenu(parentMenu);
+  }, [pathname]);
 
   const handleMenuSelect = (item: MenuItem) => {
     if (item.submenu) {
       setIsTransitioning(true);
       setActiveMenu(item.label);
       setTimeout(() => setIsTransitioning(false), 450);
-    } else if (item.href || item.onClick) {
-      item.onClick?.() || onNavigate?.();
+    } else if (item.href) {
+      router.push(item.href);
+      onNavigate?.();
     }
   };
 

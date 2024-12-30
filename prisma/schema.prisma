@@ -41,17 +41,16 @@ model Session {
 }
 
 model User {
-  id            String       @id @default(cuid())
+  id            String          @id @default(cuid())
   name          String?
-  email         String?      @unique
+  email         String?         @unique
   emailVerified DateTime?
   image         String?
   password      String?
-  
   accounts      Account[]
   sessions      Session[]
   memberships   Membership[]
-  passwordResetTokens PasswordResetToken[]
+  preferences   UserPreferences?
 }
 
 enum Role {
@@ -68,6 +67,12 @@ enum Plan {
   ENTERPRISE
 }
 
+enum Theme {
+  light
+  dark
+  system
+}
+
 model Organization {
   id                   String       @id @default(cuid())
   name                 String
@@ -77,6 +82,7 @@ model Organization {
   stripeSubscriptionId String?      @unique
   memberships          Membership[]
   domains             Domain[]
+  userPreferences     UserPreferences[]
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
 }
@@ -107,13 +113,16 @@ model Domain {
   @@index([organizationId])
 }
 
-model PasswordResetToken {
-  id        String   @id @default(cuid())
-  token     String   @unique
-  expires   DateTime
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
-  createdAt DateTime @default(now())
+model UserPreferences {
+  id                   String       @id @default(cuid())
+  user                 User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId               String       @unique
+  defaultOrganization  Organization? @relation(fields: [defaultOrganizationId], references: [id], onDelete: SetNull)
+  defaultOrganizationId String?
+  theme                Theme        @default(system)
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
 
   @@index([userId])
+  @@index([defaultOrganizationId])
 }
