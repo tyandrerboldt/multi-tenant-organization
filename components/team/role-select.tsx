@@ -1,6 +1,6 @@
 "use client"
 
-import { Role } from "@prisma/client"
+import { Role } from "@/lib/types/permissions"
 import {
   Select,
   SelectContent,
@@ -8,28 +8,34 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { ROLE_TRANSLATIONS, EDITABLE_ROLES } from "@/lib/constants/roles"
 
 interface RoleSelectProps {
-  currentRole: Role
-  onRoleChange: (role: Role) => void
+  roles: Role[]
+  currentRoleId?: string | null
+  onRoleChange: (roleId: string | null) => void
   disabled?: boolean
 }
 
-export function RoleSelect({ currentRole, onRoleChange, disabled }: RoleSelectProps) {
+export function RoleSelect({
+  roles,
+  currentRoleId,
+  onRoleChange,
+  disabled
+}: RoleSelectProps) {
   return (
     <Select
-      value={currentRole}
-      onValueChange={(value) => onRoleChange(value as Role)}
+      value={currentRoleId || ""}
+      onValueChange={(value) => onRoleChange(value || null)}
       disabled={disabled}
     >
-      <SelectTrigger className="w-[140px]">
-        <SelectValue>{ROLE_TRANSLATIONS[currentRole]}</SelectValue>
+      <SelectTrigger className="w-[200px]">
+        <SelectValue placeholder="Selecionar função" />
       </SelectTrigger>
       <SelectContent>
-        {EDITABLE_ROLES.map((role) => (
-          <SelectItem key={role} value={role}>
-            {ROLE_TRANSLATIONS[role]}
+        <SelectItem value="NOTTING">Nenhuma função</SelectItem>
+        {roles.map((role) => (
+          <SelectItem key={role.id} value={role.id}>
+            {role.name}
           </SelectItem>
         ))}
       </SelectContent>

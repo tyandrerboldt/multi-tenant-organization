@@ -51,6 +51,7 @@ model User {
   sessions      Session[]
   memberships   Membership[]
   preferences   UserPreferences?
+  permissions   Permission[]    @relation("UserPermissions")
 }
 
 enum Role {
@@ -83,6 +84,7 @@ model Organization {
   memberships          Membership[]
   domains             Domain[]
   userPreferences     UserPreferences[]
+  customRoles         CustomRole[]
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
 }
@@ -125,4 +127,32 @@ model UserPreferences {
 
   @@index([userId])
   @@index([defaultOrganizationId])
+}
+
+model CustomRole {
+  id             String       @id @default(cuid())
+  name           String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  permissions    Permission[] @relation("RolePermissions")
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([name, organizationId])
+  @@index([organizationId])
+}
+
+model Permission {
+  id        String      @id @default(cuid())
+  role      CustomRole? @relation("RolePermissions", fields: [roleId], references: [id], onDelete: Cascade)
+  roleId    String?
+  user      User?       @relation("UserPermissions", fields: [userId], references: [id], onDelete: Cascade)
+  userId    String?
+  resource  String      // e.g., "domains"
+  actions   String[]    // e.g., ["read", "create", "update", "delete"]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@index([roleId])
+  @@index([userId])
 }

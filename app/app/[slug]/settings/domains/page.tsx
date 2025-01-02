@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card"
 import { DomainList } from "@/components/domains/domain-list"
 import { AddDomainDialog } from "@/components/domains/add-domain-dialog"
 import { getDomains } from "@/lib/actions/domain"
+import { checkPermission } from "@/lib/actions/roles"
 
 interface DomainsPageProps {
   params: {
@@ -38,11 +39,31 @@ export default async function DomainsPage({
   })
 
   if (!organization) {
-    redirect("/create-organization")
+    redirect("/app")
+  }
+
+  // Check read permission
+  const canRead = await checkPermission(
+    session.user.id,
+    organization.id,
+    "domains",
+    "read"
+  )
+
+  if (!canRead) {
+    redirect(`/app/${params.slug}`)
   }
 
   const page = Number(searchParams.page) || 1
   const { domains, totalPages, currentPage } = await getDomains(organization.id, page)
+
+  // Check create permission for showing add button
+  const canCreate = await checkPermission(
+    session.user.id,
+    organization.id,
+    "domains",
+    "create"
+  )
 
   return (
     <div className="space-y-6">
@@ -50,10 +71,12 @@ export default async function DomainsPage({
         <div>
           <h1 className="text-2xl font-bold">Domains</h1>
           <p className="text-gray-600">
-            Manage your organization&apos;s domains.
+            Manage your organization's domains.
           </p>
         </div>
-        <AddDomainDialog organizationId={organization.id} />
+        {canCreate && (
+          <AddDomainDialog organizationId={organization.id} />
+        )}
       </div>
 
       <Card className="p-6">
@@ -62,6 +85,18 @@ export default async function DomainsPage({
           organizationId={organization.id}
           currentPage={currentPage}
           totalPages={totalPages}
+          canUpdate={await checkPermission(
+            session.user.id,
+            organization.id,
+            "domains",
+            "update"
+          )}
+          canDelete={await checkPermission(
+            session.user.id,
+            organization.id,
+            "domains",
+            "delete"
+          )}
         />
       </Card>
     </div>

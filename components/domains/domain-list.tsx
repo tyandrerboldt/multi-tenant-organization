@@ -32,6 +32,8 @@ interface DomainListProps {
   organizationId: string
   currentPage: number
   totalPages: number
+  canUpdate: boolean
+  canDelete: boolean
 }
 
 export function DomainList({
@@ -39,6 +41,8 @@ export function DomainList({
   organizationId,
   currentPage,
   totalPages,
+  canUpdate,
+  canDelete,
 }: DomainListProps) {
   const router = useRouter()
   const [deletingDomain, setDeletingDomain] = useState<Domain | null>(null)
@@ -66,7 +70,7 @@ export function DomainList({
           <TableRow>
             <TableHead>Domain</TableHead>
             <TableHead>Added</TableHead>
-            <TableHead>Actions</TableHead>
+            {(canUpdate || canDelete) && <TableHead>Actions</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -76,15 +80,19 @@ export function DomainList({
               <TableCell>
                 {formatDistanceToNow(new Date(domain.createdAt), { addSuffix: true })}
               </TableCell>
-              <TableCell>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setDeletingDomain(domain)}
-                >
-                  <Trash2 className="h-4 w-4 text-red-500" />
-                </Button>
-              </TableCell>
+              {(canUpdate || canDelete) && (
+                <TableCell>
+                  {canDelete && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setDeletingDomain(domain)}
+                    >
+                      <Trash2 className="h-4 w-4 text-red-500" />
+                    </Button>
+                  )}
+                </TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>

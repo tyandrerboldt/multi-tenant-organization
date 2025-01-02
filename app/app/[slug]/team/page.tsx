@@ -4,9 +4,10 @@ import { prisma } from "@/lib/prisma"
 import { Card } from "@/components/ui/card"
 import { InviteMemberForm } from "@/components/team/invite-member-form"
 import { MemberList } from "@/components/team/member-list"
-import { getTeamMembers } from "@/lib/actions/team"
+import { getRoles } from "@/lib/actions/roles"
 import { getServerSession } from "next-auth/next"
 import { Role } from "@prisma/client"
+import { getTeamMembers } from "@/lib/actions/team"
 
 interface TeamPageProps {
   params: {
@@ -33,11 +34,14 @@ export default async function TeamPage({ params }: TeamPageProps) {
   })
 
   if (!organization) {
-    redirect("/create-organization")
+    redirect("/app")
   }
 
-  const members = await getTeamMembers(organization.id)
-  
+  const [members, roles] = await Promise.all([
+    getTeamMembers(organization.id),
+    getRoles(organization.id)
+  ])
+
   const currentMembership = members.find(
     member => member.user.id === session.user.id
   )
@@ -49,7 +53,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
       <div>
         <h1 className="text-2xl font-bold">Team Members</h1>
         <p className="text-gray-600">
-          Manage your organization&apos;s team members and their roles.
+          Manage your organization's team members and their roles.
         </p>
       </div>
 
@@ -58,6 +62,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
         <MemberList
           organizationId={organization.id}
           members={members}
+          roles={roles}
           currentUserId={session.user.id}
           isOwner={isOwner}
         />

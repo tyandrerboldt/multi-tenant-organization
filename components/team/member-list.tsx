@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Role } from "@prisma/client"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -22,10 +22,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { removeMember, updateMemberRole } from "@/lib/actions/team"
+import { assignRole, removeMember } from "@/lib/actions/team"
 import { UserX } from "lucide-react"
 import { RoleSelect } from "./role-select"
 import { ROLE_TRANSLATIONS } from "@/lib/constants/roles"
+import { Role as CustomRole } from "@/lib/types/permissions"
 
 interface Member {
   id: string
@@ -36,11 +37,13 @@ interface Member {
     email: string | null
     image: string | null
   }
+  roleId?: string | null
 }
 
 interface MemberListProps {
   organizationId: string
   members: Member[]
+  roles: CustomRole[]
   currentUserId: string
   isOwner: boolean
   onMemberRemoved?: () => void
@@ -48,7 +51,8 @@ interface MemberListProps {
 
 export function MemberList({ 
   organizationId, 
-  members, 
+  members,
+  roles,
   currentUserId,
   isOwner,
   onMemberRemoved 
@@ -72,10 +76,10 @@ export function MemberList({
     }
   }
 
-  const handleRoleChange = async (memberId: string, newRole: Role) => {
+  const handleRoleChange = async (memberId: string, roleId: string | null) => {
     try {
       setIsUpdating(true)
-      await updateMemberRole(organizationId, memberId, newRole)
+      await assignRole(organizationId, memberId, roleId)
     } catch (error) {
       console.error("Failed to update member role:", error)
     } finally {
@@ -83,13 +87,20 @@ export function MemberList({
     }
   }
 
+  useEffect(() => {
+    console.log("members");
+    console.log(members);
+    
+  }, [])
+
   return (
     <>
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Member</TableHead>
-            <TableHead>Role</TableHead>
+            <TableHead>System Role</TableHead>
+            <TableHead>Custom Role</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -109,18 +120,20 @@ export function MemberList({
                 </div>
               </TableCell>
               <TableCell>
-                {member.role === Role.OWNER ? (
-                  <span>{ROLE_TRANSLATIONS[member.role]}</span>
-                ) : (
+                {ROLE_TRANSLATIONS[member.role]}
+              </TableCell>
+              <TableCell>
+                {member.role != Role.OWNER && (
                   <RoleSelect
-                    currentRole={member.role}
-                    onRoleChange={(role) => handleRoleChange(member.id, role)}
+                    roles={roles}
+                    currentRoleId={member.roleId}
+                    onRoleChange={(roleId) => handleRoleChange(member.id, roleId)}
                     disabled={!isOwner || isUpdating || member.user.id === currentUserId}
                   />
                 )}
               </TableCell>
               <TableCell>
-                {member.role !== Role.OWNER && member.user.id !== currentUserId && isOwner && (
+                {member.role != Role.OWNER && member.user.id != currentUserId && isOwner && (
                   <Button
                     variant="ghost"
                     size="sm"

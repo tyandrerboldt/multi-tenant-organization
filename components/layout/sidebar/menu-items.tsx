@@ -6,6 +6,7 @@ import {
   Home,
   LayoutDashboard,
   Settings,
+  Shield,
   Users,
 } from "lucide-react";
 import { MenuItem } from "./types";
@@ -39,6 +40,11 @@ export const createMenuItems = (organizationSlug: string): MenuItem[] => [
         label: "Billing",
         icon: Currency,
         href: `/app/${organizationSlug}/settings/billing`,
+      },
+      {
+        label: "Roles",
+        icon: Shield,
+        href: `/app/${organizationSlug}/settings/roles`,
       },
     ],
   },
