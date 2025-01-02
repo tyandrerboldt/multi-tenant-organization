@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Role } from "@prisma/client"
+import { Role as SystemRole } from "@prisma/client"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -25,37 +25,34 @@ import {
 import { removeMember, assignRole } from "@/lib/actions/team"
 import { UserX } from "lucide-react"
 import { RoleSelect } from "./role-select"
-import { ROLE_TRANSLATIONS } from "@/lib/constants/roles"
-import { Role as CustomRole } from "@/lib/types/permissions"
+import { Role } from "@/lib/types/permissions"
 
 interface Member {
   id: string
-  role: Role
+  role: SystemRole
+  roleId: string | null
   user: {
     id: string
     name: string | null
     email: string | null
     image: string | null
   }
-  roleId?: string | null
 }
 
 interface MemberListProps {
   organizationId: string
   members: Member[]
-  roles: CustomRole[]
+  customRoles: Role[]
   currentUserId: string
   isOwner: boolean
-  onMemberRemoved?: () => void
 }
 
 export function MemberList({ 
   organizationId, 
   members,
-  roles,
+  customRoles,
   currentUserId,
   isOwner,
-  onMemberRemoved 
 }: MemberListProps) {
   const [isRemoving, setIsRemoving] = useState(false)
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null)
@@ -67,7 +64,6 @@ export function MemberList({
     try {
       setIsRemoving(true)
       await removeMember(organizationId, selectedMemberId)
-      onMemberRemoved?.()
     } catch (error) {
       console.error("Failed to remove member:", error)
     } finally {
@@ -114,12 +110,12 @@ export function MemberList({
                 </div>
               </TableCell>
               <TableCell>
-                {ROLE_TRANSLATIONS[member.role]}
+                {member.role}
               </TableCell>
               <TableCell>
-                {member.role != Role.OWNER && (
+                {member.role !== SystemRole.OWNER && (
                   <RoleSelect
-                    roles={roles}
+                    roles={customRoles}
                     currentRoleId={member.roleId}
                     onRoleChange={(roleId) => handleRoleChange(member.id, roleId)}
                     disabled={!isOwner || isUpdating || member.user.id === currentUserId}
@@ -127,7 +123,7 @@ export function MemberList({
                 )}
               </TableCell>
               <TableCell>
-                {member.role != Role.OWNER && member.user.id !== currentUserId && isOwner && (
+                {member.role !== SystemRole.OWNER && member.user.id !== currentUserId && isOwner && (
                   <Button
                     variant="ghost"
                     size="sm"

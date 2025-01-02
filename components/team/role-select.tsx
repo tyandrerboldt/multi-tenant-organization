@@ -29,7 +29,11 @@ export function RoleSelect({
       disabled={disabled}
     >
       <SelectTrigger className="w-[200px]">
-        <SelectValue placeholder="Selecionar função" />
+        <SelectValue>
+          {currentRoleId
+            ? roles.find((role) => role.id == currentRoleId)?.name
+            : "Selecionar função"}
+        </SelectValue>
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="NOTTING">Nenhuma função</SelectItem>
