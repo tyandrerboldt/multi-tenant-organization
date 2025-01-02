@@ -33,7 +33,7 @@ export function RoleSelect({
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="NOTTING">Nenhuma função</SelectItem>
-        {roles.map((role) => (
+        {roles?.map((role) => (
           <SelectItem key={role.id} value={role.id}>
             {role.name}
           </SelectItem>

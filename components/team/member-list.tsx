@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Role } from "@prisma/client"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -22,7 +22,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { assignRole, removeMember } from "@/lib/actions/team"
+import { removeMember, assignRole } from "@/lib/actions/team"
 import { UserX } from "lucide-react"
 import { RoleSelect } from "./role-select"
 import { ROLE_TRANSLATIONS } from "@/lib/constants/roles"
@@ -87,12 +87,6 @@ export function MemberList({
     }
   }
 
-  useEffect(() => {
-    console.log("members");
-    console.log(members);
-    
-  }, [])
-
   return (
     <>
       <Table>
@@ -133,7 +127,7 @@ export function MemberList({
                 )}
               </TableCell>
               <TableCell>
-                {member.role != Role.OWNER && member.user.id != currentUserId && isOwner && (
+                {member.role != Role.OWNER && member.user.id !== currentUserId && isOwner && (
                   <Button
                     variant="ghost"
                     size="sm"

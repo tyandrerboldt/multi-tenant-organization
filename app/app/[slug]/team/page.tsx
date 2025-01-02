@@ -71,7 +71,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
       {isOwner && (
         <Card className="p-6">
           <h2 className="text-lg font-semibold mb-4">Invite New Member</h2>
-          <InviteMemberForm organizationId={organization.id} />
+          <InviteMemberForm organizationId={organization.id} roles={roles} />
         </Card>
       )}
     </div>
