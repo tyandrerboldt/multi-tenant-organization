@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { User } from "next-auth"
@@ -8,11 +7,11 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Alert } from "@/components/ui/alert"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { AccountFormData, accountSchema } from "@/lib/validations/account"
 import { updateAccount } from "@/lib/actions/account"
 import { useSession } from "next-auth/react"
+import { showToast } from "@/lib/toast"
 
 interface AccountFormProps {
   user: User
@@ -21,8 +20,6 @@ interface AccountFormProps {
 export function AccountForm({ user }: AccountFormProps) {
   const router = useRouter()
   const { update: updateSession } = useSession()
-  const [error, setError] = useState<string>("")
-  const [isSaved, setIsSaved] = useState(false)
   
   const {
     register,
@@ -42,12 +39,9 @@ export function AccountForm({ user }: AccountFormProps) {
 
   const onSubmit = async (data: AccountFormData) => {
     try {
-      setError("")
-      setIsSaved(false)
-      
       const result = await updateAccount(data)
       if (result.success) {
-        // Atualiza a sessão com os novos dados
+        // Update session with new data
         await updateSession({
           ...user,
           name: data.name,
@@ -55,23 +49,19 @@ export function AccountForm({ user }: AccountFormProps) {
           image: data.image,
         })
         
-        setIsSaved(true)
+        showToast("Account updated successfully", { variant: "success" })
         router.refresh()
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Something went wrong")
+      showToast(
+        error instanceof Error ? error.message : "Failed to update account",
+        { variant: "error" }
+      )
     }
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {error && <Alert variant="destructive">{error}</Alert>}
-      {isSaved && (
-        <Alert className="bg-green-50 text-green-800 border-green-200">
-          Informações atualizadas com sucesso
-        </Alert>
-      )}
-      
       <div className="space-y-4">
         <div className="flex items-center space-x-4">
           <Avatar className="h-16 w-16">
@@ -81,27 +71,27 @@ export function AccountForm({ user }: AccountFormProps) {
             </AvatarFallback>
           </Avatar>
           <div>
-            <Label htmlFor="image">URL do Avatar</Label>
+            <Label htmlFor="image">Avatar URL</Label>
             <Input
               id="image"
               {...register("image")}
-              placeholder="https://exemplo.com/avatar.jpg"
+              placeholder="https://example.com/avatar.jpg"
               className="max-w-md"
             />
             {errors.image && (
-              <p className="text-sm text-red-500">{errors.image.message}</p>
+              <p className="text-sm text-destructive">{errors.image.message}</p>
             )}
           </div>
         </div>
 
         <div>
-          <Label htmlFor="name">Nome</Label>
+          <Label htmlFor="name">Name</Label>
           <Input
             id="name"
             {...register("name")}
           />
           {errors.name && (
-            <p className="text-sm text-red-500">{errors.name.message}</p>
+            <p className="text-sm text-destructive">{errors.name.message}</p>
           )}
         </div>
 
@@ -113,7 +103,7 @@ export function AccountForm({ user }: AccountFormProps) {
             {...register("email")}
           />
           {errors.email && (
-            <p className="text-sm text-red-500">{errors.email.message}</p>
+            <p className="text-sm text-destructive">{errors.email.message}</p>
           )}
         </div>
       </div>
@@ -122,7 +112,7 @@ export function AccountForm({ user }: AccountFormProps) {
         type="submit"
         disabled={isSubmitting}
       >
-        {isSubmitting ? "Salvando..." : "Salvar alterações"}
+        {isSubmitting ? "Saving..." : "Save changes"}
       </Button>
     </form>
   )

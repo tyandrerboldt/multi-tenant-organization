@@ -1,12 +1,10 @@
 "use client"
 
-import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { Alert } from "@/components/ui/alert"
 import {
   Select,
   SelectContent,
@@ -16,7 +14,7 @@ import {
 } from "@/components/ui/select"
 import { PreferencesFormData, preferencesSchema } from "@/lib/validations/preferences"
 import { updatePreferences } from "@/lib/actions/preferences"
-import { usePreferences } from "@/lib/hooks/use-preferences"
+import { showToast } from "@/lib/toast"
 
 interface Organization {
   id: string
@@ -30,9 +28,6 @@ interface PreferencesFormProps {
 
 export function PreferencesForm({ organizations, defaultValues }: PreferencesFormProps) {
   const router = useRouter()
-  const [error, setError] = useState<string>("")
-  const [isSaved, setIsSaved] = useState(false)
-  const { theme, setTheme } = usePreferences()
   
   const {
     handleSubmit,
@@ -49,41 +44,33 @@ export function PreferencesForm({ organizations, defaultValues }: PreferencesFor
 
   const onSubmit = async (data: PreferencesFormData) => {
     try {
-      setError("")
-      setIsSaved(false)
-      
       const result = await updatePreferences(data)
       if (result.success) {
-        setTheme(data.theme)
-        setIsSaved(true)
+        showToast("Preferences saved successfully", { variant: "success" })
         router.refresh()
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Algo deu errado")
+      showToast(
+        error instanceof Error ? error.message : "Failed to save preferences",
+        { variant: "error" }
+      )
     }
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {error && <Alert variant="destructive">{error}</Alert>}
-      {isSaved && (
-        <Alert className="bg-green-50 text-green-800 border-green-200">
-          Preferências salvas com sucesso
-        </Alert>
-      )}
-      
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label>Organização Padrão</Label>
+          <Label>Default Organization</Label>
           <Select
             value={currentOrganization}
             onValueChange={(value) => setValue("defaultOrganizationId", value)}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Selecione uma organização" />
+              <SelectValue placeholder="Select an organization" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="NULL">Nenhuma</SelectItem>
+              <SelectItem value="NONE">None</SelectItem>
               {organizations.map((org) => (
                 <SelectItem key={org.id} value={org.id}>
                   {org.name}
@@ -91,13 +78,13 @@ export function PreferencesForm({ organizations, defaultValues }: PreferencesFor
               ))}
             </SelectContent>
           </Select>
-          <p className="text-sm text-gray-500">
-            Organização que será selecionada por padrão ao acessar o sistema
+          <p className="text-sm text-muted-foreground">
+            Organization that will be selected by default when accessing the system
           </p>
         </div>
 
         <div className="space-y-2">
-          <Label>Tema</Label>
+          <Label>Theme</Label>
           <Select
             value={currentTheme}
             onValueChange={(value: "light" | "dark" | "system") => 
@@ -105,16 +92,16 @@ export function PreferencesForm({ organizations, defaultValues }: PreferencesFor
             }
           >
             <SelectTrigger>
-              <SelectValue placeholder="Selecione um tema" />
+              <SelectValue placeholder="Select a theme" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="light">Claro</SelectItem>
-              <SelectItem value="dark">Escuro</SelectItem>
-              <SelectItem value="system">Sistema</SelectItem>
+              <SelectItem value="light">Light</SelectItem>
+              <SelectItem value="dark">Dark</SelectItem>
+              <SelectItem value="system">System</SelectItem>
             </SelectContent>
           </Select>
-          <p className="text-sm text-gray-500">
-            Escolha o tema da interface do usuário
+          <p className="text-sm text-muted-foreground">
+            Choose the user interface theme
           </p>
         </div>
       </div>
@@ -123,7 +110,7 @@ export function PreferencesForm({ organizations, defaultValues }: PreferencesFor
         type="submit"
         disabled={isSubmitting}
       >
-        {isSubmitting ? "Salvando..." : "Salvar preferências"}
+        {isSubmitting ? "Saving..." : "Save preferences"}
       </Button>
     </form>
   )

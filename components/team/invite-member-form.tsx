@@ -1,7 +1,6 @@
 "use client";
 
 import { UpgradePlanModal } from "@/components/billing/upgrade-plan-modal";
-import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +10,7 @@ import { Role } from "@/lib/types/permissions";
 import { Plan } from "@prisma/client";
 import { useState } from "react";
 import { RoleSelect } from "./role-select";
+import { showToast } from "@/lib/toast";
 
 interface InviteMemberFormProps {
   organizationId: string;
@@ -27,7 +27,6 @@ export function InviteMemberForm({
 }: InviteMemberFormProps) {
   const [email, setEmail] = useState("");
   const [roleId, setRoleId] = useState<string | null>(null);
-  const [error, setError] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { isUpgradeModalOpen, setIsUpgradeModalOpen, checkAndEnforceLimit } =
@@ -46,7 +45,6 @@ export function InviteMemberForm({
   const resetForm = () => {
     setEmail("");
     setRoleId(null);
-    setError("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,7 +52,7 @@ export function InviteMemberForm({
 
     const emailError = validateEmail(email);
     if (emailError) {
-      setError(emailError);
+      showToast(emailError, { variant: "error" });
       return;
     }
 
@@ -63,15 +61,18 @@ export function InviteMemberForm({
     }
 
     try {
-      setError("");
       setIsSubmitting(true);
 
       const result = await inviteMember(organizationId, { email, roleId });
       if (result.success) {
+        showToast("Member invited successfully", { variant: "success" });
         resetForm();
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Something went wrong");
+      showToast(
+        error instanceof Error ? error.message : "Failed to invite member",
+        { variant: "error" }
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -80,8 +81,6 @@ export function InviteMemberForm({
   return (
     <>
       <form onSubmit={handleSubmit} className="space-y-4">
-        {error && <Alert variant="destructive">{error}</Alert>}
-
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input

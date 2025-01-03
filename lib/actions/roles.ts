@@ -10,7 +10,7 @@ import { Action, Resource } from "@/lib/types/permissions"
 
 export async function getRoles(organizationId: string) {
   const session = await getServerSession(authOptions)
-  
+
   if (!session?.user?.id) {
     throw new Error("Não autorizado")
   }
@@ -28,7 +28,7 @@ export async function getRoles(organizationId: string) {
 
 export async function createRole(organizationId: string, data: RoleFormData) {
   const session = await getServerSession(authOptions)
-  
+
   if (!session?.user?.id) {
     throw new Error("Não autorizado")
   }
@@ -72,7 +72,7 @@ export async function updateRole(
   data: RoleFormData
 ) {
   const session = await getServerSession(authOptions)
-  
+
   if (!session?.user?.id) {
     throw new Error("Não autorizado")
   }
@@ -113,7 +113,7 @@ export async function updateRole(
 
 export async function deleteRole(organizationId: string, roleId: string) {
   const session = await getServerSession(authOptions)
-  
+
   if (!session?.user?.id) {
     throw new Error("Não autorizado")
   }
@@ -144,7 +144,7 @@ export async function resetRolePermissions(
   roleId: string
 ) {
   const session = await getServerSession(authOptions)
-  
+
   if (!session?.user?.id) {
     throw new Error("Não autorizado")
   }
@@ -178,7 +178,7 @@ export async function checkPermission(
       organizationId,
     },
     include: {
-      user: {
+      customRole: {
         include: {
           permissions: true
         }
@@ -192,7 +192,7 @@ export async function checkPermission(
   if (membership.role === Role.OWNER) return true
 
   // Verificar permissões específicas do usuário
-  const userPermission = membership.user.permissions.find(
+  const userPermission = membership.customRole?.permissions.find(
     p => p.resource === resource
   )
 

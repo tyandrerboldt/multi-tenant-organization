@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
@@ -9,11 +8,10 @@ import { createOrganization } from "@/lib/actions/organization"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Alert } from "@/components/ui/alert"
+import { showToast } from "@/lib/toast"
 
 export function OrganizationForm() {
   const router = useRouter()
-  const [error, setError] = useState<string>("")
   
   const {
     register,
@@ -34,18 +32,20 @@ export function OrganizationForm() {
     try {
       const result = await createOrganization(data)
       if (result.success) {
+        showToast("Organization created successfully", { variant: "success" })
         router.push(`/app/${result.organization.slug}`)
         router.refresh()
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Something went wrong")
+      showToast(
+        error instanceof Error ? error.message : "Failed to create organization",
+        { variant: "error" }
+      )
     }
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {error && <Alert variant="destructive">{error}</Alert>}
-      
       <div className="space-y-2">
         <Label htmlFor="name">Organization Name</Label>
         <Input
@@ -54,7 +54,7 @@ export function OrganizationForm() {
           placeholder="Enter organization name"
         />
         {errors.name && (
-          <p className="text-sm text-red-500">{errors.name.message}</p>
+          <p className="text-sm text-destructive">{errors.name.message}</p>
         )}
       </div>
 
@@ -67,9 +67,9 @@ export function OrganizationForm() {
           defaultValue={generateSlug(name)}
         />
         {errors.slug && (
-          <p className="text-sm text-red-500">{errors.slug.message}</p>
+          <p className="text-sm text-destructive">{errors.slug.message}</p>
         )}
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-muted-foreground">
           This will be used in your organization&apos;s URL: 
           <span className="font-mono">domain.com/app/[slug]</span>
         </p>

@@ -15,9 +15,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Alert } from "@/components/ui/alert"
 import { RoleFormData, roleSchema } from "@/lib/validations/roles"
 import { createRole } from "@/lib/actions/roles"
+import { showToast } from "@/lib/toast"
 
 interface AddRoleDialogProps {
   organizationId: string
@@ -25,7 +25,6 @@ interface AddRoleDialogProps {
 
 export function AddRoleDialog({ organizationId }: AddRoleDialogProps) {
   const [open, setOpen] = useState(false)
-  const [error, setError] = useState<string>("")
   
   const {
     register,
@@ -46,12 +45,15 @@ export function AddRoleDialog({ organizationId }: AddRoleDialogProps) {
 
   const onSubmit = async (data: RoleFormData) => {
     try {
-      setError("")
       await createRole(organizationId, data)
+      showToast("Role created successfully", { variant: "success" })
       setOpen(false)
       reset()
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Algo deu errado")
+      showToast(
+        error instanceof Error ? error.message : "Failed to create role",
+        { variant: "error" }
+      )
     }
   }
 
@@ -60,34 +62,31 @@ export function AddRoleDialog({ organizationId }: AddRoleDialogProps) {
       setOpen(isOpen)
       if (!isOpen) {
         reset()
-        setError("")
       }
     }}>
       <DialogTrigger asChild>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
-          Nova Função
+          New Role
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Nova Função</DialogTitle>
+          <DialogTitle>New Role</DialogTitle>
           <DialogDescription>
-            Crie uma nova função para sua organização
+            Create a new role for your organization
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {error && <Alert variant="destructive">{error}</Alert>}
-          
           <div className="space-y-2">
-            <Label htmlFor="name">Nome da Função</Label>
+            <Label htmlFor="name">Role Name</Label>
             <Input
               id="name"
               {...register("name")}
             />
             {errors.name && (
-              <p className="text-sm text-red-500">{errors.name.message}</p>
+              <p className="text-sm text-destructive">{errors.name.message}</p>
             )}
           </div>
 
@@ -97,13 +96,13 @@ export function AddRoleDialog({ organizationId }: AddRoleDialogProps) {
               variant="outline"
               onClick={() => setOpen(false)}
             >
-              Cancelar
+              Cancel
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Criando..." : "Criar Função"}
+              {isSubmitting ? "Creating..." : "Create Role"}
             </Button>
           </div>
         </form>

@@ -16,11 +16,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Alert } from "@/components/ui/alert"
 import { DomainFormData, domainSchema } from "@/lib/validations/domain"
 import { createDomain } from "@/lib/actions/domain"
 import { Plan } from "@prisma/client"
 import { UpgradePlanModal } from "@/components/billing/upgrade-plan-modal"
+import { showToast } from "@/lib/toast"
 import { usePlanRestrictions } from "@/lib/plans/hooks/use-plan-restriction"
 
 interface AddDomainDialogProps {
@@ -36,7 +36,6 @@ export function AddDomainDialog({
 }: AddDomainDialogProps) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
-  const [error, setError] = useState<string>("")
   
   const { isUpgradeModalOpen, setIsUpgradeModalOpen, checkAndEnforceLimit } = 
     usePlanRestrictions({
@@ -59,13 +58,16 @@ export function AddDomainDialog({
     }
 
     try {
-      setError("")
       await createDomain(organizationId, data)
+      showToast("Domain added successfully", { variant: "success" })
       setOpen(false)
       reset()
       router.refresh()
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Something went wrong")
+      showToast(
+        error instanceof Error ? error.message : "Failed to add domain",
+        { variant: "error" }
+      )
     }
   }
 
@@ -75,7 +77,6 @@ export function AddDomainDialog({
         setOpen(isOpen)
         if (!isOpen) {
           reset()
-          setError("")
         }
       }}>
         <DialogTrigger asChild>
@@ -93,8 +94,6 @@ export function AddDomainDialog({
           </DialogHeader>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {error && <Alert variant="destructive">{error}</Alert>}
-            
             <div className="space-y-2">
               <Label htmlFor="name">Domain Name</Label>
               <Input
@@ -103,7 +102,7 @@ export function AddDomainDialog({
                 {...register("name")}
               />
               {errors.name && (
-                <p className="text-sm text-red-500">{errors.name.message}</p>
+                <p className="text-sm text-destructive">{errors.name.message}</p>
               )}
             </div>
 

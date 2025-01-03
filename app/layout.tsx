@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { getUserPreferences } from "@/lib/actions/preferences";
 import { PreferencesProvider } from '@/providers/preferences-provider';
+import { Toaster } from '@/components/ui/sonner';
 
 export const metadata: Metadata = {
   title: 'Modern SaaS Platform',
@@ -29,6 +30,7 @@ export default async function RootLayout({
           >
             {children}
           </PreferencesProvider>
+          <Toaster />
         </SessionProvider>
       </body>
     </html>
