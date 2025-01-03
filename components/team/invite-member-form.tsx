@@ -8,14 +8,8 @@ import { Label } from "@/components/ui/label";
 import { inviteMember } from "@/lib/actions/team";
 import { usePlanRestrictions } from "@/lib/plans/hooks/use-plan-restriction";
 import { Role } from "@/lib/types/permissions";
-import {
-  InviteMemberFormData,
-  inviteMemberSchema,
-} from "@/lib/validations/team";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Plan } from "@prisma/client";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
 import { RoleSelect } from "./role-select";
 
 interface InviteMemberFormProps {
@@ -31,7 +25,10 @@ export function InviteMemberForm({
   plan,
   currentUsage,
 }: InviteMemberFormProps) {
+  const [email, setEmail] = useState("");
+  const [roleId, setRoleId] = useState<string | null>(null);
   const [error, setError] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { isUpgradeModalOpen, setIsUpgradeModalOpen, checkAndEnforceLimit } =
     usePlanRestrictions({
@@ -39,34 +36,50 @@ export function InviteMemberForm({
       usage: { members: currentUsage, domains: 0 },
     });
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<InviteMemberFormData>({
-    resolver: zodResolver(inviteMemberSchema),
-  });
+  const validateEmail = (email: string) => {
+    if (!email) return "Email is required";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      return "Invalid email address";
+    return null;
+  };
 
-  const onSubmit = async (data: InviteMemberFormData) => {
+  const resetForm = () => {
+    setEmail("");
+    setRoleId(null);
+    setError("");
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const emailError = validateEmail(email);
+    if (emailError) {
+      setError(emailError);
+      return;
+    }
+
     if (!checkAndEnforceLimit("members")) {
       return;
     }
 
     try {
-      const result = await inviteMember(organizationId, data);
+      setError("");
+      setIsSubmitting(true);
+
+      const result = await inviteMember(organizationId, { email, roleId });
       if (result.success) {
-        reset();
+        resetForm();
       }
     } catch (error) {
       setError(error instanceof Error ? error.message : "Something went wrong");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
         {error && <Alert variant="destructive">{error}</Alert>}
 
         <div className="space-y-2">
@@ -74,19 +87,18 @@ export function InviteMemberForm({
           <Input
             id="email"
             type="email"
-            {...register("email")}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter member's email"
           />
-          {errors.email && (
-            <p className="text-sm text-red-500">{errors.email.message}</p>
-          )}
         </div>
 
         <div className="space-y-2">
           <Label>Role</Label>
           <RoleSelect
             roles={customRoles}
-            onRoleChange={(roleId) => setValue("roleId", roleId)}
+            currentRoleId={roleId}
+            onRoleChange={setRoleId}
           />
         </div>
 

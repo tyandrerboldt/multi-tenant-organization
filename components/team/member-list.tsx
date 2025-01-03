@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Role as SystemRole } from "@prisma/client"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import { Role as SystemRole } from "@prisma/client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -11,7 +11,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,67 +21,67 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { removeMember, assignRole } from "@/lib/actions/team"
-import { UserX } from "lucide-react"
-import { RoleSelect } from "./role-select"
-import { Role } from "@/lib/types/permissions"
+} from "@/components/ui/alert-dialog";
+import { removeMember, assignRole } from "@/lib/actions/team";
+import { UserX } from "lucide-react";
+import { RoleSelect } from "./role-select";
+import { Role } from "@/lib/types/permissions";
 
 interface Member {
-  id: string
-  role: SystemRole
-  roleId: string | null
+  id: string;
+  role: SystemRole;
+  roleId: string | null;
   user: {
-    id: string
-    name: string | null
-    email: string | null
-    image: string | null
-  }
+    id: string;
+    name: string | null;
+    email: string | null;
+    image: string | null;
+  };
 }
 
 interface MemberListProps {
-  organizationId: string
-  members: Member[]
-  customRoles: Role[]
-  currentUserId: string
-  isOwner: boolean
+  organizationId: string;
+  members: Member[];
+  customRoles: Role[];
+  currentUserId: string;
+  isOwner: boolean;
 }
 
-export function MemberList({ 
-  organizationId, 
+export function MemberList({
+  organizationId,
   members,
   customRoles,
   currentUserId,
   isOwner,
 }: MemberListProps) {
-  const [isRemoving, setIsRemoving] = useState(false)
-  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null)
-  const [isUpdating, setIsUpdating] = useState(false)
+  const [isRemoving, setIsRemoving] = useState(false);
+  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const handleRemoveMember = async () => {
-    if (!selectedMemberId) return
+    if (!selectedMemberId) return;
 
     try {
-      setIsRemoving(true)
-      await removeMember(organizationId, selectedMemberId)
+      setIsRemoving(true);
+      await removeMember(organizationId, selectedMemberId);
     } catch (error) {
-      console.error("Failed to remove member:", error)
+      console.error("Failed to remove member:", error);
     } finally {
-      setIsRemoving(false)
-      setSelectedMemberId(null)
+      setIsRemoving(false);
+      setSelectedMemberId(null);
     }
-  }
+  };
 
   const handleRoleChange = async (memberId: string, roleId: string | null) => {
     try {
-      setIsUpdating(true)
-      await assignRole(organizationId, memberId, roleId)
+      setIsUpdating(true);
+      await assignRole(organizationId, memberId, roleId);
     } catch (error) {
-      console.error("Failed to update member role:", error)
+      console.error("Failed to update member role:", error);
     } finally {
-      setIsUpdating(false)
+      setIsUpdating(false);
     }
-  }
+  };
 
   return (
     <>
@@ -89,8 +89,8 @@ export function MemberList({
         <TableHeader>
           <TableRow>
             <TableHead>Member</TableHead>
-            <TableHead>System Role</TableHead>
-            <TableHead>Custom Role</TableHead>
+            {/* <TableHead>System Role</TableHead> */}
+            <TableHead>Role</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -106,47 +106,56 @@ export function MemberList({
                 </Avatar>
                 <div>
                   <div className="font-medium">{member.user.name}</div>
-                  <div className="text-sm text-gray-500">{member.user.email}</div>
+                  <div className="text-sm text-gray-500">
+                    {member.user.email}
+                  </div>
                 </div>
               </TableCell>
-              <TableCell>
+              {/* <TableCell>
                 {member.role}
-              </TableCell>
+              </TableCell> */}
               <TableCell>
                 {member.role !== SystemRole.OWNER && (
                   <RoleSelect
                     roles={customRoles}
                     currentRoleId={member.roleId}
-                    onRoleChange={(roleId) => handleRoleChange(member.id, roleId)}
-                    disabled={!isOwner || isUpdating || member.user.id === currentUserId}
+                    onRoleChange={(roleId) =>
+                      handleRoleChange(member.id, roleId)
+                    }
+                    disabled={
+                      !isOwner || isUpdating || member.user.id === currentUserId
+                    }
                   />
                 )}
               </TableCell>
               <TableCell>
-                {member.role !== SystemRole.OWNER && member.user.id !== currentUserId && isOwner && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setSelectedMemberId(member.id)}
-                  >
-                    <UserX className="h-4 w-4" />
-                  </Button>
-                )}
+                {member.role !== SystemRole.OWNER &&
+                  member.user.id !== currentUserId &&
+                  isOwner && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelectedMemberId(member.id)}
+                    >
+                      <UserX className="h-4 w-4" />
+                    </Button>
+                  )}
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
 
-      <AlertDialog 
-        open={!!selectedMemberId} 
+      <AlertDialog
+        open={!!selectedMemberId}
         onOpenChange={() => setSelectedMemberId(null)}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Remove Member</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to remove this member? This action cannot be undone.
+              Are you sure you want to remove this member? This action cannot be
+              undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -161,5 +170,5 @@ export function MemberList({
         </AlertDialogContent>
       </AlertDialog>
     </>
-  )
+  );
 }

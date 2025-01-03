@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { PlanCard } from "./plan-card";
+import { updateSubscription } from "@/lib/actions/billing";
 import { PLANS, PlanDetails } from "@/lib/constants/plans";
 import { Plan } from "@prisma/client";
-import { updateSubscription } from "@/lib/actions/billing";
 import { loadStripe } from "@stripe/stripe-js";
+import { useState } from "react";
+import { PlanCard } from "./plan-card";
 
 interface PlanGridProps {
   organizationId: string;
@@ -22,17 +22,6 @@ export function PlanGrid({
 }: PlanGridProps) {
   const [isLoading, setIsLoading] = useState(false);
   const hasActiveSubscription = !!stripeSubscriptionId;
-
-  useEffect(() => {
-    console.log(organizationId);
-    console.log(currentPlan);
-    console.log(stripeCustomerId);
-    console.log(stripeSubscriptionId);
-
-    Object.entries(PLANS).forEach(([key, plan]) => {
-      console.log(plan);
-    })
-  }, []);
 
   const handlePlanSelect = async (plan: PlanDetails) => {
     try {

@@ -1,10 +1,10 @@
 "use server"
 
-import { getServerSession } from "next-auth"
-import { prisma } from "@/lib/prisma"
 import { authOptions } from "@/lib/auth"
-import { Role } from "@prisma/client"
+import { prisma } from "@/lib/prisma"
 import { OrganizationSettingsFormData } from "@/lib/validations/settings"
+import { Role } from "@prisma/client"
+import { getServerSession } from "next-auth"
 import { revalidatePath } from "next/cache"
 
 export async function updateOrganizationSettings(
@@ -12,7 +12,7 @@ export async function updateOrganizationSettings(
   data: OrganizationSettingsFormData
 ) {
   const session = await getServerSession(authOptions)
-  
+
   if (!session?.user?.id) {
     throw new Error("Unauthorized")
   }
@@ -58,11 +58,7 @@ export async function updateOrganizationSettings(
 
 export async function deleteOrganization(organizationId: string) {
   const session = await getServerSession(authOptions)
-  console.log("organizationId");
-  console.log(organizationId);
-  console.log("session");
-  console.log(session);
-  
+
   if (!session?.user?.id) {
     throw new Error("Unauthorized")
   }

@@ -57,7 +57,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
       <div>
         <h1 className="text-2xl font-bold">Team Members</h1>
         <p className="text-gray-600">
-          Manage your organization&apos;s team members ({usage.members} of {memberLimit === Infinity ? "unlimited" : memberLimit})
+          Manage your organization&apos;s team members ({usage.members - 1} of {memberLimit === Infinity ? "unlimited" : memberLimit})
         </p>
       </div>
 
@@ -65,7 +65,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
         <h2 className="text-lg font-semibold mb-4">Current Members</h2>
         <MemberList
           organizationId={organization.id}
-          members={members}
+          members={members.filter(mb => mb.role != "OWNER")}
           customRoles={customRoles}
           currentUserId={session.user.id}
           isOwner={isOwner}
@@ -79,7 +79,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
             organizationId={organization.id}
             customRoles={customRoles}
             plan={organization.plan}
-            currentUsage={usage.members}
+            currentUsage={usage.members - 1}
           />
         </Card>
       )}
