@@ -1,86 +1,106 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { inviteMember } from "@/lib/actions/team"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Alert } from "@/components/ui/alert"
-import { RoleSelect } from "./role-select"
-import { Role } from "@/lib/types/permissions"
+import { UpgradePlanModal } from "@/components/billing/upgrade-plan-modal";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { inviteMember } from "@/lib/actions/team";
+import { usePlanRestrictions } from "@/lib/plans/hooks/use-plan-restriction";
+import { Role } from "@/lib/types/permissions";
+import {
+  InviteMemberFormData,
+  inviteMemberSchema,
+} from "@/lib/validations/team";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Plan } from "@prisma/client";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { RoleSelect } from "./role-select";
 
 interface InviteMemberFormProps {
-  organizationId: string
-  customRoles: Role[]
-  onSuccess?: () => void
+  organizationId: string;
+  customRoles: Role[];
+  plan: Plan;
+  currentUsage: number;
 }
 
-export function InviteMemberForm({ 
-  organizationId, 
-  customRoles, 
-  onSuccess 
+export function InviteMemberForm({
+  organizationId,
+  customRoles,
+  plan,
+  currentUsage,
 }: InviteMemberFormProps) {
-  const [email, setEmail] = useState("")
-  const [roleId, setRoleId] = useState<string>("NOTTING")
-  const [error, setError] = useState<string>("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string>("");
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault()
+  const { isUpgradeModalOpen, setIsUpgradeModalOpen, checkAndEnforceLimit } =
+    usePlanRestrictions({
+      plan,
+      usage: { members: currentUsage, domains: 0 },
+    });
 
-    if (!email || !roleId) {
-      setError("Email e função são obrigatórios")
-      return
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<InviteMemberFormData>({
+    resolver: zodResolver(inviteMemberSchema),
+  });
+
+  const onSubmit = async (data: InviteMemberFormData) => {
+    if (!checkAndEnforceLimit("members")) {
+      return;
     }
-
-    setError("")
-    setIsSubmitting(true)
 
     try {
-      const result = await inviteMember(organizationId, { email, roleId })
+      const result = await inviteMember(organizationId, data);
       if (result.success) {
-        setEmail("")
-        setRoleId("NOTTING")
-        onSuccess?.()
+        reset();
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Algo deu errado")
-    } finally {
-      setIsSubmitting(false)
+      setError(error instanceof Error ? error.message : "Something went wrong");
     }
-  }
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {error && <Alert variant="destructive">{error}</Alert>}
-      
-      <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Enter member's email"
-        />
-      </div>
+    <>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {error && <Alert variant="destructive">{error}</Alert>}
 
-      <div className="space-y-2">
-        <Label>Role</Label>
-        <RoleSelect
-          roles={customRoles}
-          currentRoleId={roleId}
-          onRoleChange={(roleId) => setRoleId(`${roleId}`)}
-        />
-      </div>
+        <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            {...register("email")}
+            placeholder="Enter member's email"
+          />
+          {errors.email && (
+            <p className="text-sm text-red-500">{errors.email.message}</p>
+          )}
+        </div>
 
-      <Button
-        type="submit"
-        className="w-full"
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? "Inviting..." : "Invite Member"}
-      </Button>
-    </form>
-  )
+        <div className="space-y-2">
+          <Label>Role</Label>
+          <RoleSelect
+            roles={customRoles}
+            onRoleChange={(roleId) => setValue("roleId", roleId)}
+          />
+        </div>
+
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
+          {isSubmitting ? "Inviting..." : "Invite Member"}
+        </Button>
+      </form>
+
+      <UpgradePlanModal
+        isOpen={isUpgradeModalOpen}
+        onClose={() => setIsUpgradeModalOpen(false)}
+        organizationId={organizationId}
+        currentPlan={plan}
+      />
+    </>
+  );
 }

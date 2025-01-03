@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import {
   Dialog,
   DialogContent,
@@ -9,14 +10,14 @@ import {
 } from "@/components/ui/dialog"
 import { PlanGrid } from "./plan-grid"
 import { Plan } from "@prisma/client"
+import { getOrganizationBillingData } from "@/lib/actions/billing"
+import { OrganizationBillingData } from "@/lib/actions/billing"
 
 interface UpgradePlanModalProps {
   isOpen: boolean
   onClose: () => void
   organizationId: string
   currentPlan: Plan
-  stripeCustomerId?: string | null
-  stripeSubscriptionId?: string | null
 }
 
 export function UpgradePlanModal({
@@ -24,12 +25,20 @@ export function UpgradePlanModal({
   onClose,
   organizationId,
   currentPlan,
-  stripeCustomerId,
-  stripeSubscriptionId,
 }: UpgradePlanModalProps) {
+  const [billingData, setBillingData] = useState<OrganizationBillingData | null>(null)
+
+  useEffect(() => {
+    if (isOpen) {
+      getOrganizationBillingData(organizationId)
+        .then(setBillingData)
+        .catch(console.error)
+    }
+  }, [isOpen, organizationId])
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent className="max-w-6xl">
         <DialogHeader>
           <DialogTitle>Upgrade Your Plan</DialogTitle>
           <DialogDescription>
@@ -40,8 +49,8 @@ export function UpgradePlanModal({
         <PlanGrid
           organizationId={organizationId}
           currentPlan={currentPlan}
-          stripeCustomerId={stripeCustomerId}
-          stripeSubscriptionId={stripeSubscriptionId}
+          stripeCustomerId={billingData?.stripeCustomerId}
+          stripeSubscriptionId={billingData?.stripeSubscriptionId}
         />
       </DialogContent>
     </Dialog>

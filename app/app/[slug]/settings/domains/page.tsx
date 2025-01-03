@@ -7,6 +7,8 @@ import { DomainList } from "@/components/domains/domain-list"
 import { AddDomainDialog } from "@/components/domains/add-domain-dialog"
 import { getDomains } from "@/lib/actions/domain"
 import { checkPermission } from "@/lib/actions/roles"
+import { getOrganizationUsage } from "@/lib/plans/usage"
+import { getPlanResourceLimit } from "@/lib/plans/limits"
 
 interface DomainsPageProps {
   params: {
@@ -57,6 +59,10 @@ export default async function DomainsPage({
   const page = Number(searchParams.page) || 1
   const { domains, totalPages, currentPage } = await getDomains(organization.id, page)
 
+  // Get usage and limits for domains
+  const usage = await getOrganizationUsage(organization.id)
+  const domainLimit = getPlanResourceLimit(organization.plan, "domains")
+
   // Check create permission for showing add button
   const canCreate = await checkPermission(
     session.user.id,
@@ -71,11 +77,15 @@ export default async function DomainsPage({
         <div>
           <h1 className="text-2xl font-bold">Domains</h1>
           <p className="text-gray-600">
-            Manage your organization's domains.
+            Manage your organization&apos;s domains ({usage.domains} of {domainLimit === Infinity ? "unlimited" : domainLimit})
           </p>
         </div>
         {canCreate && (
-          <AddDomainDialog organizationId={organization.id} />
+          <AddDomainDialog 
+            organizationId={organization.id}
+            plan={organization.plan}
+            currentUsage={usage.domains}
+          />
         )}
       </div>
 

@@ -8,6 +8,8 @@ import { getTeamMembers } from "@/lib/actions/team"
 import { getRoles } from "@/lib/actions/roles"
 import { getServerSession } from "next-auth/next"
 import { Role } from "@prisma/client"
+import { getOrganizationUsage } from "@/lib/plans/usage"
+import { getPlanResourceLimit } from "@/lib/plans/limits"
 
 interface TeamPageProps {
   params: {
@@ -37,9 +39,10 @@ export default async function TeamPage({ params }: TeamPageProps) {
     redirect("/app")
   }
 
-  const [members, customRoles] = await Promise.all([
+  const [members, customRoles, usage] = await Promise.all([
     getTeamMembers(organization.id),
-    getRoles(organization.id)
+    getRoles(organization.id),
+    getOrganizationUsage(organization.id)
   ])
   
   const currentMembership = members.find(
@@ -47,13 +50,14 @@ export default async function TeamPage({ params }: TeamPageProps) {
   )
   
   const isOwner = currentMembership?.role === Role.OWNER
+  const memberLimit = getPlanResourceLimit(organization.plan, "members")
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Team Members</h1>
         <p className="text-gray-600">
-          Manage your organization's team members and their roles.
+          Manage your organization&apos;s team members ({usage.members} of {memberLimit === Infinity ? "unlimited" : memberLimit})
         </p>
       </div>
 
@@ -72,8 +76,10 @@ export default async function TeamPage({ params }: TeamPageProps) {
         <Card className="p-6">
           <h2 className="text-lg font-semibold mb-4">Invite New Member</h2>
           <InviteMemberForm 
-            organizationId={organization.id} 
+            organizationId={organization.id}
             customRoles={customRoles}
+            plan={organization.plan}
+            currentUsage={usage.members}
           />
         </Card>
       )}

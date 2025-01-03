@@ -82,3 +82,35 @@ export async function getPaymentHistory(organizationId: string): Promise<Payment
     created: payment.created,
   }))
 }
+
+
+export interface OrganizationBillingData {
+  stripeCustomerId: string | null
+  stripeSubscriptionId: string | null
+  plan: Plan
+}
+
+export async function getOrganizationBillingData(
+  organizationId: string
+): Promise<OrganizationBillingData> {
+  const session = await getServerSession(authOptions)
+  
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized")
+  }
+
+  const organization = await prisma.organization.findUnique({
+    where: { id: organizationId },
+    select: {
+      stripeCustomerId: true,
+      stripeSubscriptionId: true,
+      plan: true,
+    },
+  })
+
+  if (!organization) {
+    throw new Error("Organization not found")
+  }
+
+  return organization
+}
