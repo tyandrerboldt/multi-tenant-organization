@@ -17,7 +17,7 @@ export default async function AppLayout({
 
   return (
     <div className="flex h-screen">
-      <div className="hidden lg:block w-64 border-r bg-gray-50/50">
+      <div className="hidden lg:block w-64 border-r border-border/40 bg-card/50">
         <AppSidebar />
       </div>
       <main className="flex-1 overflow-y-auto">

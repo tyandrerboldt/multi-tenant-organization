@@ -87,3 +87,4 @@ export function AppSidebar({ onNavigate, className }: AppSidebarProps) {
     </div>
   );
 }
+
