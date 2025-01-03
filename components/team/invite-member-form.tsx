@@ -40,7 +40,7 @@ export function InviteMemberForm({
       const result = await inviteMember(organizationId, { email, roleId })
       if (result.success) {
         setEmail("")
-        setRoleId(null)
+        setRoleId("NOTTING")
         onSuccess?.()
       }
     } catch (error) {
@@ -70,7 +70,7 @@ export function InviteMemberForm({
         <RoleSelect
           roles={customRoles}
           currentRoleId={roleId}
-          onRoleChange={setRoleId}
+          onRoleChange={(roleId) => setRoleId(`${roleId}`)}
         />
       </div>
 
