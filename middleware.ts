@@ -6,18 +6,29 @@ export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request })
   const isAuthenticated = !!token
 
-  // Public paths that don't require authentication
-  const isPublicPath = request.nextUrl.pathname.match(
-    /^\/($|login|register|reset-password)/
-  )
+  // Array com rotas públicas que redirecionam para /app se autenticado
+  const redirectPublicPaths = ["/login", "/register", "/reset-password"]
 
-  // Redirect authenticated users away from public paths
-  if (isAuthenticated && isPublicPath) {
+  // Array com rotas públicas que não redirecionam
+  const noRedirectPublicPaths = ["/"]
+
+  const path = request.nextUrl.pathname
+
+  const isRedirectPublicPath = redirectPublicPaths.includes(path)
+  const isNoRedirectPublicPath = noRedirectPublicPaths.includes(path)
+
+  // Redireciona usuários autenticados em páginas públicas que exigem redirecionamento
+  if (isAuthenticated && isRedirectPublicPath) {
     return NextResponse.redirect(new URL("/app", request.url))
   }
 
-  // Redirect unauthenticated users to login
-  if (!isAuthenticated && !isPublicPath) {
+  // Permite acesso às páginas públicas sem redirecionamento
+  if (isNoRedirectPublicPath) {
+    return NextResponse.next()
+  }
+
+  // Redireciona usuários não autenticados para login
+  if (!isAuthenticated && !isRedirectPublicPath && !isNoRedirectPublicPath) {
     const loginUrl = new URL("/login", request.url)
     loginUrl.searchParams.set("callbackUrl", request.nextUrl.pathname)
     return NextResponse.redirect(loginUrl)
