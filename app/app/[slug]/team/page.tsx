@@ -2,7 +2,7 @@ import { redirect } from "next/navigation"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { Card } from "@/components/ui/card"
-import { InviteMemberForm } from "@/components/team/invite-member-form"
+import { InviteMemberDialog } from "@/components/team/invite-member-dialog"
 import { MemberList } from "@/components/team/member-list"
 import { getTeamMembers } from "@/lib/actions/team"
 import { getRoles } from "@/lib/actions/roles"
@@ -10,6 +10,8 @@ import { getServerSession } from "next-auth/next"
 import { Role } from "@prisma/client"
 import { getOrganizationUsage } from "@/lib/plans/usage"
 import { getPlanResourceLimit } from "@/lib/plans/limits"
+import { Button } from "@/components/ui/button"
+import { UserPlus } from "lucide-react"
 
 interface TeamPageProps {
   params: {
@@ -53,16 +55,32 @@ export default async function TeamPage({ params }: TeamPageProps) {
   const memberLimit = getPlanResourceLimit(organization.plan, "members")
 
   return (
-    <div className="space-y-6 max-w-6xl">
-      <div>
-        <h1 className="text-2xl font-bold">Equipe</h1>
-        <p className="text-gray-600">
-          Gerencie a sua equipe de membros
-        </p>
+    <div className="max-w-6xl">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-2xl font-bold">Membros da Equipe</h1>
+          <p className="text-gray-600">
+            Gerencie os membros da sua organização ({usage.members - 1} de {memberLimit === Infinity ? "ilimitado" : memberLimit})
+          </p>
+        </div>
+
+        {isOwner && (
+          <InviteMemberDialog
+            trigger={
+              <Button>
+                <UserPlus className="mr-2 h-4 w-4" />
+                Convidar
+              </Button>
+            }
+            organizationId={organization.id}
+            customRoles={customRoles}
+            plan={organization.plan}
+            currentUsage={usage.members - 1}
+          />
+        )}
       </div>
 
       <Card className="p-6">
-        <h2 className="text-lg font-semibold mb-4">Equipe atual</h2>
         <MemberList
           organizationId={organization.id}
           members={members.filter(mb => mb.role != "OWNER")}
@@ -71,18 +89,6 @@ export default async function TeamPage({ params }: TeamPageProps) {
           isOwner={isOwner}
         />
       </Card>
-
-      {isOwner && (
-        <Card className="p-6">
-          <h2 className="text-lg font-semibold mb-4">Convidar novo membro</h2>
-          <InviteMemberForm 
-            organizationId={organization.id}
-            customRoles={customRoles}
-            plan={organization.plan}
-            currentUsage={usage.members - 1}
-          />
-        </Card>
-      )}
     </div>
   )
 }
