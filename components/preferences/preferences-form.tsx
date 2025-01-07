@@ -1,8 +1,5 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -12,13 +9,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { updatePreferences } from "@/lib/actions/preferences";
+import { usePreferences } from "@/lib/hooks/use-preferences";
+import { showToast } from "@/lib/toast";
 import {
   PreferencesFormData,
   preferencesSchema,
 } from "@/lib/validations/preferences";
-import { updatePreferences } from "@/lib/actions/preferences";
-import { showToast } from "@/lib/toast";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useTheme } from "next-themes";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
 
 interface Organization {
   id: string;
@@ -48,14 +49,13 @@ export function PreferencesForm({
 
   const currentTheme = watch("theme");
   const currentOrganization = watch("defaultOrganizationId");
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme } = usePreferences();
 
   const onSubmit = async (data: PreferencesFormData) => {
     try {
       const result = await updatePreferences(data);
       if (result.success) {
         showToast("Preferences saved successfully", { variant: "success" });
-        setTheme(data.theme);
         router.refresh();
       }
     } catch (error) {
@@ -79,7 +79,7 @@ export function PreferencesForm({
               <SelectValue placeholder="Selecione uma organização" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="NONE">None</SelectItem>
+              <SelectItem value="NONE">Nenhuma</SelectItem>
               {organizations.map((org) => (
                 <SelectItem key={org.id} value={org.id}>
                   {org.name}
@@ -96,9 +96,10 @@ export function PreferencesForm({
           <Label>Tema</Label>
           <Select
             value={currentTheme}
-            onValueChange={(value: "light" | "dark") =>
-              setValue("theme", value)
-            }
+            onValueChange={(value: "light" | "dark") => {
+              setValue("theme", value);
+              setTheme(value)
+            }}
           >
             <SelectTrigger>
               <SelectValue placeholder="Selecione o tema" />

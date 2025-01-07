@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { Theme } from "@prisma/client"
 import { PreferencesContext } from "@/lib/hooks/use-preferences"
+import { useTheme } from "next-themes"
 
 interface PreferencesProviderProps {
   children: React.ReactNode
@@ -15,20 +16,16 @@ export function PreferencesProvider({
   defaultTheme = "light",
   defaultOrganizationId,
 }: PreferencesProviderProps) {
-  const [theme, setTheme] = useState<Theme>(defaultTheme)
+  const [theme, setThemeState] = useState<Theme>(defaultTheme)
+  const { setTheme: setNextTheme } = useTheme()
+
+  const setTheme = (newTheme: Theme) => {
+    setThemeState(newTheme)
+    setNextTheme(newTheme)
+  }
 
   useEffect(() => {
-    const root = window.document.documentElement
-    root.classList.remove("light", "dark")
-
-    if (theme === "light") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light"
-      root.classList.add(systemTheme)
-    } else {
-      root.classList.add(theme)
-    }
+    setTheme(theme)
   }, [theme])
 
   return (

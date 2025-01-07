@@ -6,9 +6,10 @@ import { authOptions } from "@/lib/auth";
 import { getUserPreferences } from "@/lib/actions/preferences";
 import { PreferencesProvider } from '@/providers/preferences-provider';
 import { Toaster } from '@/components/ui/sonner';
+import { ThemeProvider } from 'next-themes';
 
 export const metadata: Metadata = {
-  title: 'Platform',
+  title: 'Modern SaaS Platform',
   description: 'A modern SaaS platform built with Next.js',
 };
 
@@ -24,13 +25,19 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen bg-background font-roboto antialiased">
         <SessionProvider session={session}>
-          <PreferencesProvider
+          <ThemeProvider
+            attribute="class"
             defaultTheme={preferences?.theme || "light"}
-            defaultOrganizationId={preferences?.defaultOrganizationId}
+            enableSystem
           >
-            {children}
-          </PreferencesProvider>
-          <Toaster />
+            <PreferencesProvider
+              defaultTheme={preferences?.theme || "light"}
+              defaultOrganizationId={preferences?.defaultOrganizationId}
+            >
+              {children}
+              <Toaster />
+            </PreferencesProvider>
+          </ThemeProvider>
         </SessionProvider>
       </body>
     </html>
