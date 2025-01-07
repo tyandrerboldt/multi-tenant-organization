@@ -74,7 +74,7 @@ export function LoginForm() {
           "Loading..."
         ) : (
           <>
-            Sign in with Google
+            Acessar com Google
           </>
         )}
       </Button>
@@ -85,7 +85,7 @@ export function LoginForm() {
         </div>
         <div className="relative flex justify-center text-xs uppercase">
           <span className="bg-background px-2 text-muted-foreground">
-            Or continue with
+            Ou continue com
           </span>
         </div>
       </div>
@@ -97,7 +97,7 @@ export function LoginForm() {
             id="email"
             type="email"
             {...register("email")}
-            placeholder="your@email.com"
+            placeholder="nome@email.com"
           />
           {errors.email && (
             <p className="text-sm text-destructive">{errors.email.message}</p>
@@ -106,12 +106,12 @@ export function LoginForm() {
 
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Senha</Label>
             <Link
               href="/reset-password"
               className="text-sm text-primary hover:underline"
             >
-              Forgot password?
+              Esqueceu a senha?
             </Link>
           </div>
           <Input
@@ -128,14 +128,14 @@ export function LoginForm() {
         </div>
 
         <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? "Signing in..." : "Sign in"}
+          {isSubmitting ? "Logando..." : "logar"}
         </Button>
       </form>
 
       <p className="text-center text-sm text-muted-foreground">
-        Don&apos;t have an account?{" "}
+        Não possui uma conta?{" "}
         <Link href="/register" className="text-primary hover:underline">
-          Sign up
+          Cadastrar
         </Link>
       </p>
     </div>

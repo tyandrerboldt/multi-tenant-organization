@@ -8,16 +8,16 @@ export default function RegisterPage() {
       <div className="max-w-md w-full px-4">
         <Card className="p-8">
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold">Create an account</h1>
-            <p className="text-gray-600">Get started with your organization</p>
+            <h1 className="text-2xl font-bold">Cadastrar Conta</h1>
+            <p className="text-gray-600">Inicie o cadastro e sua organização</p>
           </div>
           
           <RegisterForm />
           
           <p className="mt-4 text-center text-sm text-gray-600">
-            Already have an account?{" "}
+            Já tem uma conta?{" "}
             <Link href="/login" className="text-blue-600 hover:underline">
-              Sign in
+              Acessar
             </Link>
           </p>
         </Card>

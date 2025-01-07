@@ -40,7 +40,7 @@ export function RegisterForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="name">Name</Label>
-        <Input id="name" {...register("name")} placeholder="Enter your name" />
+        <Input id="name" {...register("name")} placeholder="Insira seu nome" />
         {errors.name && (
           <p className="text-sm text-destructive">{errors.name.message}</p>
         )}
@@ -52,7 +52,7 @@ export function RegisterForm() {
           id="email"
           type="email"
           {...register("email")}
-          placeholder="Enter your email"
+          placeholder="Insira seu email"
         />
         {errors.email && (
           <p className="text-sm text-destructive">{errors.email.message}</p>
@@ -60,12 +60,12 @@ export function RegisterForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password">Senha</Label>
         <Input
           id="password"
           type="password"
           {...register("password")}
-          placeholder="Enter your password"
+          placeholder="Insira sua senha"
         />
         {errors.password && (
           <p className="text-sm text-destructive">{errors.password.message}</p>
@@ -73,7 +73,7 @@ export function RegisterForm() {
       </div>
 
       <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {isSubmitting ? "Creating account..." : "Create account"}
+        {isSubmitting ? "Criando sua conta.." : "Criar conta"}
       </Button>
     </form>
   );
