@@ -85,7 +85,7 @@ export function AccountForm({ user }: AccountFormProps) {
         </div>
 
         <div>
-          <Label htmlFor="name">Name</Label>
+          <Label htmlFor="name">Nome</Label>
           <Input
             id="name"
             {...register("name")}
@@ -112,7 +112,7 @@ export function AccountForm({ user }: AccountFormProps) {
         type="submit"
         disabled={isSubmitting}
       >
-        {isSubmitting ? "Saving..." : "Save changes"}
+        {isSubmitting ? "Salvando..." : "Salvar alterações"}
       </Button>
     </form>
   )

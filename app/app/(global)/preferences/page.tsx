@@ -32,7 +32,7 @@ export default async function PreferencesPage() {
           organizations={organizations}
           defaultValues={{
             defaultOrganizationId: preferences?.defaultOrganizationId,
-            theme: preferences?.theme || "system",
+            theme: preferences?.theme || "light",
           }}
         />
       </Card>

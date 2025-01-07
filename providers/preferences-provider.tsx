@@ -12,7 +12,7 @@ interface PreferencesProviderProps {
 
 export function PreferencesProvider({
   children,
-  defaultTheme = "system",
+  defaultTheme = "light",
   defaultOrganizationId,
 }: PreferencesProviderProps) {
   const [theme, setTheme] = useState<Theme>(defaultTheme)
@@ -21,7 +21,7 @@ export function PreferencesProvider({
     const root = window.document.documentElement
     root.classList.remove("light", "dark")
 
-    if (theme === "system") {
+    if (theme === "light") {
       const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
         ? "dark"
         : "light"

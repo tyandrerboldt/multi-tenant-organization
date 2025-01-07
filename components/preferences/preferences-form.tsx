@@ -70,13 +70,13 @@ export function PreferencesForm({
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label>Default Organization</Label>
+          <Label>Organização padrão</Label>
           <Select
             value={currentOrganization}
             onValueChange={(value) => setValue("defaultOrganizationId", value)}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select an organization" />
+              <SelectValue placeholder="Selecione uma organização" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="NONE">None</SelectItem>
@@ -88,36 +88,34 @@ export function PreferencesForm({
             </SelectContent>
           </Select>
           <p className="text-sm text-muted-foreground">
-            Organization that will be selected by default when accessing the
-            system
+            Organização padrão a ser redirecionado ao acessar o sistema
           </p>
         </div>
 
         <div className="space-y-2">
-          <Label>Theme</Label>
+          <Label>Tema</Label>
           <Select
             value={currentTheme}
-            onValueChange={(value: "light" | "dark" | "system") =>
+            onValueChange={(value: "light" | "dark") =>
               setValue("theme", value)
             }
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select a theme" />
+              <SelectValue placeholder="Selecione o tema" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="light">Light</SelectItem>
               <SelectItem value="dark">Dark</SelectItem>
-              <SelectItem value="system">System</SelectItem>
             </SelectContent>
           </Select>
           <p className="text-sm text-muted-foreground">
-            Choose the user interface theme
+            Escolha o tema da sua preferência
           </p>
         </div>
       </div>
 
       <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Saving..." : "Save preferences"}
+        {isSubmitting ? "Salvando..." : "Salvar preferências"}
       </Button>
     </form>
   );
