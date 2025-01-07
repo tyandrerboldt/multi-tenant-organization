@@ -1,34 +1,41 @@
-"use client"
+"use client";
 
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { PreferencesFormData, preferencesSchema } from "@/lib/validations/preferences"
-import { updatePreferences } from "@/lib/actions/preferences"
-import { showToast } from "@/lib/toast"
+} from "@/components/ui/select";
+import {
+  PreferencesFormData,
+  preferencesSchema,
+} from "@/lib/validations/preferences";
+import { updatePreferences } from "@/lib/actions/preferences";
+import { showToast } from "@/lib/toast";
+import { useTheme } from "next-themes";
 
 interface Organization {
-  id: string
-  name: string
+  id: string;
+  name: string;
 }
 
 interface PreferencesFormProps {
-  organizations: Organization[]
-  defaultValues: Partial<PreferencesFormData>
+  organizations: Organization[];
+  defaultValues: Partial<PreferencesFormData>;
 }
 
-export function PreferencesForm({ organizations, defaultValues }: PreferencesFormProps) {
-  const router = useRouter()
-  
+export function PreferencesForm({
+  organizations,
+  defaultValues,
+}: PreferencesFormProps) {
+  const router = useRouter();
+
   const {
     handleSubmit,
     setValue,
@@ -37,25 +44,27 @@ export function PreferencesForm({ organizations, defaultValues }: PreferencesFor
   } = useForm<PreferencesFormData>({
     resolver: zodResolver(preferencesSchema),
     defaultValues,
-  })
+  });
 
-  const currentTheme = watch("theme")
-  const currentOrganization = watch("defaultOrganizationId")
+  const currentTheme = watch("theme");
+  const currentOrganization = watch("defaultOrganizationId");
+  const { theme, setTheme } = useTheme();
 
   const onSubmit = async (data: PreferencesFormData) => {
     try {
-      const result = await updatePreferences(data)
+      const result = await updatePreferences(data);
       if (result.success) {
-        showToast("Preferences saved successfully", { variant: "success" })
-        router.refresh()
+        showToast("Preferences saved successfully", { variant: "success" });
+        setTheme(data.theme);
+        router.refresh();
       }
     } catch (error) {
       showToast(
         error instanceof Error ? error.message : "Failed to save preferences",
         { variant: "error" }
-      )
+      );
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -79,7 +88,8 @@ export function PreferencesForm({ organizations, defaultValues }: PreferencesFor
             </SelectContent>
           </Select>
           <p className="text-sm text-muted-foreground">
-            Organization that will be selected by default when accessing the system
+            Organization that will be selected by default when accessing the
+            system
           </p>
         </div>
 
@@ -87,7 +97,7 @@ export function PreferencesForm({ organizations, defaultValues }: PreferencesFor
           <Label>Theme</Label>
           <Select
             value={currentTheme}
-            onValueChange={(value: "light" | "dark" | "system") => 
+            onValueChange={(value: "light" | "dark" | "system") =>
               setValue("theme", value)
             }
           >
@@ -106,12 +116,9 @@ export function PreferencesForm({ organizations, defaultValues }: PreferencesFor
         </div>
       </div>
 
-      <Button
-        type="submit"
-        disabled={isSubmitting}
-      >
+      <Button type="submit" disabled={isSubmitting}>
         {isSubmitting ? "Saving..." : "Save preferences"}
       </Button>
     </form>
-  )
+  );
 }

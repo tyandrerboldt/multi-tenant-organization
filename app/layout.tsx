@@ -8,7 +8,7 @@ import { PreferencesProvider } from '@/providers/preferences-provider';
 import { Toaster } from '@/components/ui/sonner';
 
 export const metadata: Metadata = {
-  title: 'Modern SaaS Platform',
+  title: 'Platform',
   description: 'A modern SaaS platform built with Next.js',
 };
 
@@ -25,7 +25,7 @@ export default async function RootLayout({
       <body className="min-h-screen bg-background font-roboto antialiased">
         <SessionProvider session={session}>
           <PreferencesProvider
-            defaultTheme={preferences?.theme || "system"}
+            defaultTheme={preferences?.theme || "light"}
             defaultOrganizationId={preferences?.defaultOrganizationId}
           >
             {children}

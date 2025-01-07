@@ -47,7 +47,7 @@ export default async function BillingPage({
   const currentPlanDetails = PLANS[organization.plan];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       {searchParams.success && (
         <Alert className="bg-green-50 text-green-800 border-green-200">
           Assinatura realizada com sucesso!

@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { signOut } from "next-auth/react"
-import { User } from "next-auth"
-import { UserCircle2, Settings, LogOut } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { signOut } from "next-auth/react";
+import { User } from "next-auth";
+import { UserCircle2, Settings, LogOut, EllipsisVertical } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,36 +12,40 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import Link from "next/link"
+} from "@/components/ui/dropdown-menu";
+import Link from "next/link";
+import { Button } from "../ui/button";
 
 interface UserMenuProps {
-  user: User
+  user: User;
 }
 
 export function UserMenu({ user }: UserMenuProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="outline-none">
+        <div className="flex gap-2">
           <Avatar className="h-8 w-8">
             <AvatarImage src={user.image ?? undefined} />
             <AvatarFallback>
               {user.name?.[0] ?? user.email?.[0] ?? "?"}
             </AvatarFallback>
           </Avatar>
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end">
-        <DropdownMenuLabel>
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{user.name}</p>
             <p className="text-xs leading-none text-muted-foreground">
               {user.email}
             </p>
           </div>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
+          <Button
+            variant="ghost"
+            size="sm"
+          >
+            <EllipsisVertical className="h-4 w-4" />
+          </Button>
+        </div>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56" align="end">
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
             <Link href="/app/account" className="w-full cursor-pointer">
@@ -60,5 +64,5 @@ export function UserMenu({ user }: UserMenuProps) {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }

@@ -2,9 +2,11 @@
 
 import {
   Currency,
+  DollarSign,
   Globe,
   Home,
   LayoutDashboard,
+  Receipt,
   Settings,
   Shield,
   Users,
@@ -18,31 +20,31 @@ export const createMenuItems = (organizationSlug: string): MenuItem[] => [
     href: `/app/${organizationSlug}`,
   },
   {
-    label: "Team",
+    label: "Equipe",
     icon: Users,
     href: `/app/${organizationSlug}/team`,
   },
   {
-    label: "Settings",
+    label: "Configurações",
     icon: Settings,
     submenu: [
       {
-        label: "General",
+        label: "Geral",
         icon: Home,
         href: `/app/${organizationSlug}/settings`,
       },
       {
-        label: "Domains",
+        label: "Domínios",
         icon: Globe,
         href: `/app/${organizationSlug}/settings/domains`,
       },
       {
-        label: "Billing",
-        icon: Currency,
+        label: "Planos",
+        icon: DollarSign,
         href: `/app/${organizationSlug}/settings/billing`,
       },
       {
-        label: "Roles",
+        label: "Regras de Acesso",
         icon: Shield,
         href: `/app/${organizationSlug}/settings/roles`,
       },

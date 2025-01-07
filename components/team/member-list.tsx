@@ -88,10 +88,10 @@ export function MemberList({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Member</TableHead>
+            <TableHead>Membro</TableHead>
             {/* <TableHead>System Role</TableHead> */}
-            <TableHead>Role</TableHead>
-            <TableHead>Actions</TableHead>
+            <TableHead>Função</TableHead>
+            <TableHead>Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -152,10 +152,9 @@ export function MemberList({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove Member</AlertDialogTitle>
+            <AlertDialogTitle>Remover membro</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to remove this member? This action cannot be
-              undone.
+              Tem certeza que deseja remover este membro? A ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -164,7 +163,7 @@ export function MemberList({
               onClick={handleRemoveMember}
               disabled={isRemoving}
             >
-              {isRemoving ? "Removing..." : "Remove"}
+              {isRemoving ? "Removendo..." : "Remover"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

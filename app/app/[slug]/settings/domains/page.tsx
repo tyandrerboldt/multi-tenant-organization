@@ -72,12 +72,12 @@ export default async function DomainsPage({
   )
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-4xl">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold">Domains</h1>
+          <h1 className="text-2xl font-bold">Domínios</h1>
           <p className="text-gray-600">
-            Manage your organization&apos;s domains ({usage.domains} of {domainLimit === Infinity ? "unlimited" : domainLimit})
+            Gerencie os domínios da sua organização
           </p>
         </div>
         {canCreate && (

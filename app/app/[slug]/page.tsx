@@ -34,10 +34,10 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-4">
-        Welcome to {organization.name}
+        Benvindo a {organization.name}
       </h1>
       <p className="text-gray-600">
-        This is your organization dashboard. Start building your application here.
+        Essa é a dashboard da sua organização.
       </p>
     </div>
   )

@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { Card } from "@/components/ui/card";
 import { updateRole } from "@/lib/actions/roles";
 import { showToast } from "@/lib/toast";
 import { Role } from "@/lib/types/permissions";
@@ -17,13 +18,13 @@ interface PermissionFormProps {
 
 const RESOURCES = [
   {
-    name: "Domains",
+    name: "Domínios",
     value: "domains" as const,
     actions: [
-      { name: "View", value: "read" as const },
-      { name: "Create", value: "create" as const },
-      { name: "Update", value: "update" as const },
-      { name: "Delete", value: "delete" as const },
+      { name: "Visualizar", value: "read" as const },
+      { name: "Criar", value: "create" as const },
+      { name: "Atualizar", value: "update" as const },
+      { name: "Remover", value: "delete" as const },
     ],
   },
 ];
@@ -64,52 +65,87 @@ export function PermissionForm({ role, organizationId }: PermissionFormProps) {
   const toggleAction = (resourceIndex: number, action: string) => {
     const currentActions = permissions[resourceIndex].actions;
     const newActions = currentActions.includes(action)
-      ? currentActions.filter((a) => a != action)
+      ? currentActions.filter((a) => a !== action)
       : [...currentActions, action];
 
     setValue(`permissions.${resourceIndex}.actions`, newActions);
+  };
+
+  const toggleAllActions = (resourceIndex: number) => {
+    const resource = RESOURCES[resourceIndex];
+    const currentActions = permissions[resourceIndex].actions;
+    const allActions = resource.actions.map((a) => a.value);
+
+    // If all actions are selected, unselect all. Otherwise, select all.
+    const newActions =
+      currentActions.length === allActions.length ? [] : allActions;
+
+    setValue(`permissions.${resourceIndex}.actions`, newActions);
+  };
+
+  const isAllSelected = (resourceIndex: number) => {
+    const resource = RESOURCES[resourceIndex];
+    const currentActions = permissions[resourceIndex].actions;
+    return resource.actions.length === currentActions.length;
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-4">
         {RESOURCES.map((resource, resourceIndex) => (
-          <div key={resource.value} className="space-y-2">
-            <Label>{resource.name}</Label>
-            <div className="grid grid-cols-2 gap-4">
-              {resource.actions.map((action) => {
-                const isChecked = permissions[resourceIndex].actions.includes(
-                  action.value
-                );
-                return (
-                  <div
-                    key={action.value}
-                    className="flex items-center space-x-2"
-                  >
-                    <Checkbox
-                      id={`${resource.value}-${action.value}`}
-                      checked={isChecked}
-                      onCheckedChange={() =>
-                        toggleAction(resourceIndex, action.value)
-                      }
-                    />
-                    <Label
-                      htmlFor={`${resource.value}-${action.value}`}
-                      className="text-sm font-normal"
+          <Card key={resource.value} className="p-4">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label className="text-lg font-semibold">{resource.name}</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => toggleAllActions(resourceIndex)}
+                >
+                  {isAllSelected(resourceIndex)
+                    ? "Desmarcar todos"
+                    : "Marcar todos"}
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2">
+                {resource.actions.map((action) => {
+                  const isChecked = permissions[resourceIndex].actions.includes(
+                    action.value
+                  );
+                  return (
+                    <div
+                      key={action.value}
+                      className="flex items-center space-x-2 p-2 rounded-lg hover:bg-secondary/50 transition-colors"
                     >
-                      {action.name}
-                    </Label>
-                  </div>
-                );
-              })}
+                      <Checkbox
+                        id={`${resource.value}-${action.value}`}
+                        checked={isChecked}
+                        onCheckedChange={() =>
+                          toggleAction(resourceIndex, action.value)
+                        }
+                      />
+                      <Label
+                        htmlFor={`${resource.value}-${action.value}`}
+                        className="text-sm font-normal cursor-pointer"
+                      >
+                        {action.name}
+                      </Label>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
 
-      <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Saving..." : "Save changes"}
-      </Button>
+      <div className="flex justify-end">
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Salvando..." : "Salvar alterações"}
+        </Button>
+      </div>
     </form>
   );
 }

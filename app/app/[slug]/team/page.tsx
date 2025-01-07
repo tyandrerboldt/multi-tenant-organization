@@ -53,16 +53,16 @@ export default async function TeamPage({ params }: TeamPageProps) {
   const memberLimit = getPlanResourceLimit(organization.plan, "members")
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       <div>
-        <h1 className="text-2xl font-bold">Team Members</h1>
+        <h1 className="text-2xl font-bold">Equipe</h1>
         <p className="text-gray-600">
-          Manage your organization&apos;s team members ({usage.members - 1} of {memberLimit === Infinity ? "unlimited" : memberLimit})
+          Gerencie a sua equipe de membros
         </p>
       </div>
 
       <Card className="p-6">
-        <h2 className="text-lg font-semibold mb-4">Current Members</h2>
+        <h2 className="text-lg font-semibold mb-4">Equipe atual</h2>
         <MemberList
           organizationId={organization.id}
           members={members.filter(mb => mb.role != "OWNER")}
@@ -74,7 +74,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
 
       {isOwner && (
         <Card className="p-6">
-          <h2 className="text-lg font-semibold mb-4">Invite New Member</h2>
+          <h2 className="text-lg font-semibold mb-4">Convidar novo membro</h2>
           <InviteMemberForm 
             organizationId={organization.id}
             customRoles={customRoles}

@@ -1,10 +1,9 @@
 "use client";
 
-import { OrganizationSwitcher } from "@/components/organizations/organization-switcher";
 import { UserMenu } from "@/components/user/user-menu";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { MenuContent } from "./menu-content";
 import { createAppMenuItems } from "./menu-items/app-menu-items";
@@ -63,9 +62,9 @@ export function AppSidebar({ onNavigate, className }: AppSidebarProps) {
 
   return (
     <div className={cn("flex h-full flex-col gap-4", className)}>
-      <div className="px-3 py-2 flex items-center gap-2 justify-between">
-        <OrganizationSwitcher />
-        <UserMenu user={session.user} />
+      <div className="px-6 pt-6">
+        {/* <h1 className="font-bold text-3xl">ImobiLink.</h1> */}
+        <h1 className="font-bold text-3xl">Platform.</h1>
       </div>
       <div className="relative flex-1 overflow-hidden">
         <MenuContent
@@ -84,7 +83,9 @@ export function AppSidebar({ onNavigate, className }: AppSidebarProps) {
           className={cn(isTransitioning && "pointer-events-none")}
         />
       </div>
+      <div className="px-3 py-2 flex items-center gap-2 justify-between border-t">
+        <UserMenu user={session.user} />
+      </div>
     </div>
   );
 }
-

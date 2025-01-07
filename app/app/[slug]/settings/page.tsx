@@ -41,16 +41,15 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-3xl">
       <div>
-        <h1 className="text-2xl font-bold">Organization Settings</h1>
+        <h1 className="text-2xl font-bold">Configurações Gerais</h1>
         <p className="text-gray-600">
-          Manage your organization&apos;s settings and preferences.
+          Gerencie as configurações gerais da sua organização.
         </p>
       </div>
 
       <Card className="p-6">
-        <h2 className="text-lg font-semibold mb-4">General Settings</h2>
         <OrganizationSettingsForm organization={organization} />
       </Card>
     </div>

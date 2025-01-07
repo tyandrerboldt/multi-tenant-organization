@@ -65,23 +65,24 @@ export function AddRoleDialog({ organizationId }: AddRoleDialogProps) {
       }
     }}>
       <DialogTrigger asChild>
-        <Button>
+        <Button title="Nova função">
           <Plus className="mr-2 h-4 w-4" />
-          New Role
+          Função
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New Role</DialogTitle>
+          <DialogTitle>Função</DialogTitle>
           <DialogDescription>
-            Create a new role for your organization
+            Crie uma nova função para sua organização
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Role Name</Label>
+            <Label htmlFor="name">Nome</Label>
             <Input
+            placeholder="Insira o nome da função, ex: Marketing"
               id="name"
               {...register("name")}
             />
@@ -96,13 +97,13 @@ export function AddRoleDialog({ organizationId }: AddRoleDialogProps) {
               variant="outline"
               onClick={() => setOpen(false)}
             >
-              Cancel
+              Cancelar
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Creating..." : "Create Role"}
+              {isSubmitting ? "Cadastrando..." : "Cadastrar"}
             </Button>
           </div>
         </form>

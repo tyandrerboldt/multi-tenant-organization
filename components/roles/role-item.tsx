@@ -1,10 +1,5 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Role } from "@/lib/types/permissions"
-import { Button } from "@/components/ui/button"
-import { ChevronDown, ChevronUp, Trash2, RotateCcw } from "lucide-react"
-import { PermissionForm } from "./permission-form"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,14 +9,21 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { deleteRole, resetRolePermissions } from "@/lib/actions/roles"
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { deleteRole, updateRole } from "@/lib/actions/roles";
+import { showToast } from "@/lib/toast";
+import { Role } from "@/lib/types/permissions";
+import { Check, ChevronDown, ChevronUp, Pencil, Trash2, X } from "lucide-react";
+import { useState } from "react";
+import { PermissionForm } from "./permission-form";
 
 interface RoleItemProps {
-  role: Role
-  organizationId: string
-  isExpanded: boolean
-  onToggle: () => void
+  role: Role;
+  organizationId: string;
+  isExpanded: boolean;
+  onToggle: () => void;
 }
 
 export function RoleItem({
@@ -30,49 +32,82 @@ export function RoleItem({
   isExpanded,
   onToggle,
 }: RoleItemProps) {
-  const [isDeleting, setIsDeleting] = useState(false)
-  const [isResetting, setIsResetting] = useState(false)
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-  const [showResetDialog, setShowResetDialog] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [newName, setNewName] = useState(role.name);
 
   const handleDelete = async () => {
     try {
-      setIsDeleting(true)
-      await deleteRole(organizationId, role.id)
+      setIsDeleting(true);
+      await deleteRole(organizationId, role.id);
+      showToast("Role deleted successfully", { variant: "success" });
     } catch (error) {
-      console.error("Failed to delete role:", error)
+      showToast("Failed to delete role", { variant: "error" });
     } finally {
-      setIsDeleting(false)
-      setShowDeleteDialog(false)
+      setIsDeleting(false);
+      setShowDeleteDialog(false);
     }
-  }
+  };
 
-  const handleReset = async () => {
-    try {
-      setIsResetting(true)
-      await resetRolePermissions(organizationId, role.id)
-    } catch (error) {
-      console.error("Failed to reset permissions:", error)
-    } finally {
-      setIsResetting(false)
-      setShowResetDialog(false)
+  const handleUpdateName = async () => {
+    if (newName.trim() === "") {
+      showToast("Role name cannot be empty", { variant: "error" });
+      return;
     }
-  }
+
+    try {
+      await updateRole(organizationId, role.id, {
+        name: newName,
+        permissions: role.permissions,
+      });
+      showToast("Role name updated successfully", { variant: "success" });
+      setIsEditing(false);
+    } catch (error) {
+      showToast("Failed to update role name", { variant: "error" });
+    }
+  };
 
   return (
     <div className="border rounded-lg">
       <div className="p-4 flex items-center justify-between">
-        <div>
-          <h3 className="font-medium">{role.name}</h3>
+        <div className="flex items-center gap-2 flex-1">
+          {isEditing ? (
+            <div className="flex items-center gap-2 flex-1 max-w-md">
+              <Input
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                className="h-8"
+                autoFocus
+              />
+              <Button variant="ghost" size="sm" onClick={handleUpdateName}>
+                <Check className="h-4 w-4 text-green-500" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setIsEditing(false);
+                  setNewName(role.name);
+                }}
+              >
+                <X className="h-4 w-4 text-red-500" />
+              </Button>
+            </div>
+          ) : (
+            <>
+              <h3 className="font-medium">{role.name}</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsEditing(true)}
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+            </>
+          )}
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowResetDialog(true)}
-          >
-            <RotateCcw className="h-4 w-4" />
-          </Button>
           <Button
             variant="ghost"
             size="sm"
@@ -80,11 +115,7 @@ export function RoleItem({
           >
             <Trash2 className="h-4 w-4 text-red-500" />
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onToggle}
-          >
+          <Button variant="ghost" size="sm" onClick={onToggle}>
             {isExpanded ? (
               <ChevronUp className="h-4 w-4" />
             ) : (
@@ -96,59 +127,31 @@ export function RoleItem({
 
       {isExpanded && (
         <div className="p-4 border-t">
-          <PermissionForm
-            role={role}
-            organizationId={organizationId}
-          />
+          <PermissionForm role={role} organizationId={organizationId} />
         </div>
       )}
 
-      <AlertDialog
-        open={showDeleteDialog}
-        onOpenChange={setShowDeleteDialog}
-      >
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir Função</AlertDialogTitle>
+            <AlertDialogTitle>Delete Role</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir esta função? Esta ação não pode ser desfeita.
+              Are you sure you want to delete this role? This action cannot be
+              undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-red-600 hover:bg-red-700"
               disabled={isDeleting}
             >
-              {isDeleting ? "Excluindo..." : "Excluir"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <AlertDialog
-        open={showResetDialog}
-        onOpenChange={setShowResetDialog}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Redefinir Permissões</AlertDialogTitle>
-            <AlertDialogDescription>
-              Tem certeza que deseja redefinir as permissões desta função? Esta ação não pode ser desfeita.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleReset}
-              disabled={isResetting}
-            >
-              {isResetting ? "Redefinindo..." : "Redefinir"}
+              {isDeleting ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
+  );
 }

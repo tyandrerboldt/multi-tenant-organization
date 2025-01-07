@@ -68,9 +68,9 @@ export function DomainList({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Domain</TableHead>
-            <TableHead>Added</TableHead>
-            {(canUpdate || canDelete) && <TableHead>Actions</TableHead>}
+            <TableHead>Domínio</TableHead>
+            <TableHead>Adicionado em</TableHead>
+            {(canUpdate || canDelete) && <TableHead>Ações</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -109,19 +109,19 @@ export function DomainList({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Domain</AlertDialogTitle>
+            <AlertDialogTitle>Remover domínio</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete {deletingDomain?.name}? This action cannot be undone.
+              Tem certeza que deseja remover o domínio {deletingDomain?.name}? Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-red-600 hover:bg-red-700"
               disabled={isDeleting}
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {isDeleting ? "Removendo..." : "Remover"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

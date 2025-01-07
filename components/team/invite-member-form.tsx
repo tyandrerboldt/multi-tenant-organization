@@ -88,12 +88,12 @@ export function InviteMemberForm({
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter member's email"
+            placeholder="Digite o e-mail do membro"
           />
         </div>
 
         <div className="space-y-2">
-          <Label>Role</Label>
+          <Label>Função</Label>
           <RoleSelect
             roles={customRoles}
             currentRoleId={roleId}
@@ -102,7 +102,7 @@ export function InviteMemberForm({
         </div>
 
         <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? "Inviting..." : "Invite Member"}
+          {isSubmitting ? "Convidando..." : "Convidar membro"}
         </Button>
       </form>
 

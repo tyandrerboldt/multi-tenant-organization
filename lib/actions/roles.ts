@@ -1,12 +1,12 @@
 "use server"
 
-import { getServerSession } from "next-auth"
-import { prisma } from "@/lib/prisma"
 import { authOptions } from "@/lib/auth"
-import { Role } from "@prisma/client"
-import { RoleFormData } from "@/lib/validations/roles"
-import { revalidatePath } from "next/cache"
+import { prisma } from "@/lib/prisma"
 import { Action, Resource } from "@/lib/types/permissions"
+import { RoleFormData } from "@/lib/validations/roles"
+import { Role } from "@prisma/client"
+import { getServerSession } from "next-auth"
+import { revalidatePath } from "next/cache"
 
 export async function getRoles(organizationId: string) {
   const session = await getServerSession(authOptions)
@@ -133,33 +133,6 @@ export async function deleteRole(organizationId: string, roleId: string) {
 
   await prisma.customRole.delete({
     where: { id: roleId }
-  })
-
-  revalidatePath(`/app/${organizationId}/settings/roles`)
-  return { success: true }
-}
-
-export async function resetRolePermissions(
-  organizationId: string,
-  roleId: string
-) {
-  const session = await getServerSession(authOptions)
-
-  if (!session?.user?.id) {
-    throw new Error("Não autorizado")
-  }
-
-  const role = await prisma.customRole.findUnique({
-    where: { id: roleId },
-    include: { permissions: true }
-  })
-
-  if (!role) {
-    throw new Error("Função não encontrada")
-  }
-
-  await prisma.permission.deleteMany({
-    where: { roleId }
   })
 
   revalidatePath(`/app/${organizationId}/settings/roles`)

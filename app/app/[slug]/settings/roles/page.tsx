@@ -39,10 +39,10 @@ export default async function RolesPage({ params }: RolesPageProps) {
   const roles = await getRoles(organization.id)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold">Funções</h1>
+          <h1 className="text-2xl font-bold">Regras de Acesso</h1>
           <p className="text-gray-600">
             Gerencie as funções e permissões da sua organização
           </p>
