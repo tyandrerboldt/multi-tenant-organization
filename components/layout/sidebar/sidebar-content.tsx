@@ -9,6 +9,7 @@ import { MenuContent } from "./menu-content";
 import { createMenuItems } from "./menu-items";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
+import { createAppMenuItems } from "./menu-items/app-menu-items";
 
 interface SidebarContentProps extends SidebarProps {
   className?: string;
@@ -25,7 +26,9 @@ export function SidebarContent({
   const { data: session } = useSession();
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const routes = createMenuItems(organizationSlug);
+  const routes = organizationSlug
+    ? createMenuItems(organizationSlug)
+    : createAppMenuItems();
 
   const findParentMenu = (path: string) => {
     for (const route of routes) {

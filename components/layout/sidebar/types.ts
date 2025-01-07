@@ -9,5 +9,5 @@ export interface MenuItem {
 }
 
 export interface SidebarProps {
-  organizationSlug: string
+  organizationSlug?: string
 }
