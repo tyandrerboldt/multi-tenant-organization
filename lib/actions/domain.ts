@@ -11,7 +11,7 @@ export async function getDomains(organizationId: string, page = 1, limit = 10) {
   const session = await getServerSession(authOptions)
   
   if (!session?.user?.id) {
-    throw new Error("Unauthorized")
+    throw new Error("Não autorizado")
   }
 
   const skip = (page - 1) * limit
@@ -39,7 +39,7 @@ export async function createDomain(organizationId: string, data: DomainFormData)
   const session = await getServerSession(authOptions)
   
   if (!session?.user?.id) {
-    throw new Error("Unauthorized")
+    throw new Error("Não autorizado")
   }
 
   // Verificar se o usuário é OWNER
@@ -52,7 +52,7 @@ export async function createDomain(organizationId: string, data: DomainFormData)
   })
 
   if (!membership) {
-    throw new Error("Only organization owners can add domains")
+    throw new Error("Somente proprietários da organização podem adicionar domínios")
   }
 
   // Verificar se o domínio já existe
@@ -61,7 +61,7 @@ export async function createDomain(organizationId: string, data: DomainFormData)
   })
 
   if (existingDomain) {
-    throw new Error("Domain already exists")
+    throw new Error("Domínio já existe")
   }
 
   const domain = await prisma.domain.create({
@@ -79,7 +79,7 @@ export async function deleteDomain(organizationId: string, domainId: string) {
   const session = await getServerSession(authOptions)
   
   if (!session?.user?.id) {
-    throw new Error("Unauthorized")
+    throw new Error("Não autorizado")
   }
 
   // Verificar se o usuário é OWNER
@@ -92,7 +92,7 @@ export async function deleteDomain(organizationId: string, domainId: string) {
   })
 
   if (!membership) {
-    throw new Error("Only organization owners can delete domains")
+    throw new Error("Somente proprietários da organização podem deletar domínios")
   }
 
   await prisma.domain.delete({

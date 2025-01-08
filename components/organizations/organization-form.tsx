@@ -32,13 +32,13 @@ export function OrganizationForm() {
     try {
       const result = await createOrganization(data)
       if (result.success) {
-        showToast("Organization created successfully", { variant: "success" })
+        showToast("Organização criada com sucesso", { variant: "success" })
         router.push(`/app/${result.organization.slug}`)
         router.refresh()
       }
     } catch (error) {
       showToast(
-        error instanceof Error ? error.message : "Failed to create organization",
+        error instanceof Error ? error.message : "Falha ao criar organização",
         { variant: "error" }
       )
     }
@@ -47,11 +47,11 @@ export function OrganizationForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="name">Organization Name</Label>
+        <Label htmlFor="name">Nome da Organização</Label>
         <Input
           id="name"
           {...register("name")}
-          placeholder="Enter organization name"
+          placeholder="Insira o nome da organização"
         />
         {errors.name && (
           <p className="text-sm text-destructive">{errors.name.message}</p>
@@ -59,19 +59,18 @@ export function OrganizationForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="slug">URL Slug</Label>
+        <Label htmlFor="slug">Slug da URL</Label>
         <Input
           id="slug"
           {...register("slug")}
-          placeholder="organization-name"
+          placeholder="nome-da-organizacao"
           defaultValue={generateSlug(name)}
         />
         {errors.slug && (
           <p className="text-sm text-destructive">{errors.slug.message}</p>
         )}
         <p className="text-sm text-muted-foreground">
-          This will be used in your organization&apos;s URL: 
-          <span className="font-mono">domain.com/app/[slug]</span>
+          <span>Isso será usado na URL da sua organização:</span> <span className="font-mono">domain.com/app/[slug]</span>
         </p>
       </div>
 
@@ -80,7 +79,7 @@ export function OrganizationForm() {
         className="w-full"
         disabled={isSubmitting}
       >
-        {isSubmitting ? "Creating..." : "Create Organization"}
+        {isSubmitting ? "Criando..." : "Criar Organização"}
       </Button>
     </form>
   )

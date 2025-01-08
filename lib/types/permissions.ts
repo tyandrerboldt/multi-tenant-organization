@@ -1,5 +1,5 @@
 export type Action = "read" | "create" | "update" | "delete"
-export type Resource = "domains"
+export type Resource = "domains" | "team"
 
 export interface Permission {
   id: string

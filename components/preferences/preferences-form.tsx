@@ -55,12 +55,12 @@ export function PreferencesForm({
     try {
       const result = await updatePreferences(data);
       if (result.success) {
-        showToast("Preferences saved successfully", { variant: "success" });
+        showToast("Preferências salvas com sucesso", { variant: "success" });
         router.refresh();
       }
     } catch (error) {
       showToast(
-        error instanceof Error ? error.message : "Failed to save preferences",
+        error instanceof Error ? error.message : "Falha ao salvar preferências",
         { variant: "error" }
       );
     }
@@ -105,8 +105,8 @@ export function PreferencesForm({
               <SelectValue placeholder="Selecione o tema" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="light">Light</SelectItem>
-              <SelectItem value="dark">Dark</SelectItem>
+              <SelectItem value="light">Claro</SelectItem>
+              <SelectItem value="dark">Escuro</SelectItem>
             </SelectContent>
           </Select>
           <p className="text-sm text-muted-foreground">

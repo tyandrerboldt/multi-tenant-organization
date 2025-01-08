@@ -15,7 +15,7 @@ export async function updateSubscription(
   const session = await getServerSession(authOptions)
   
   if (!session?.user?.id) {
-    throw new Error("Unauthorized")
+    throw new Error("Não autorizado")
   }
 
   // Verificar se o usuário é OWNER
@@ -28,7 +28,7 @@ export async function updateSubscription(
   })
 
   if (!membership) {
-    throw new Error("Only organization owners can change subscription")
+    throw new Error("Somente proprietários da organização podem alterar a assinatura")
   }
 
   const organization = await prisma.organization.findUnique({
@@ -36,7 +36,7 @@ export async function updateSubscription(
   })
 
   if (!organization) {
-    throw new Error("Organization not found")
+    throw new Error("Organização não encontrada")
   }
 
   // Se estiver fazendo downgrade para FREE, cancelar assinatura do Stripe
@@ -58,7 +58,7 @@ export async function getPaymentHistory(organizationId: string): Promise<Payment
   const session = await getServerSession(authOptions)
   
   if (!session?.user?.id) {
-    throw new Error("Unauthorized")
+    throw new Error("Não autorizado")
   }
 
   const organization = await prisma.organization.findUnique({
@@ -96,7 +96,7 @@ export async function getOrganizationBillingData(
   const session = await getServerSession(authOptions)
   
   if (!session?.user?.id) {
-    throw new Error("Unauthorized")
+    throw new Error("Não autorizado")
   }
 
   const organization = await prisma.organization.findUnique({
@@ -109,7 +109,7 @@ export async function getOrganizationBillingData(
   })
 
   if (!organization) {
-    throw new Error("Organization not found")
+    throw new Error("Organização não encontrada")
   }
 
   return organization

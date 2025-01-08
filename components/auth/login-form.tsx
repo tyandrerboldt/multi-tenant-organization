@@ -34,14 +34,14 @@ export function LoginForm() {
       });
 
       if (result?.error) {
-        showToast("Invalid email or password", { variant: "error" });
+        showToast("Email ou senha inválidos", { variant: "error" });
         return;
       }
 
       router.push("/app");
       router.refresh();
     } catch (error) {
-      showToast("Something went wrong", { variant: "error" });
+      showToast("Algo deu errado", { variant: "error" });
     }
   };
 
@@ -50,13 +50,13 @@ export function LoginForm() {
       setIsGoogleLoading(true);
       await signIn("google", { callbackUrl: "/app" });
     } catch (error) {
-      showToast("Failed to login with Google", { variant: "error" });
+      showToast("Falha ao acessar com Google", { variant: "error" });
     }
   };
 
-  // Show OAuth account linking error
+  // Mostrar erro de vinculação de conta OAuth
   if (searchParams?.get("error") === "OAuthAccountNotLinked") {
-    showToast("Email already in use with another login method", {
+    showToast("Email já está em uso com outro método de login", {
       variant: "error",
     });
   }
@@ -71,7 +71,7 @@ export function LoginForm() {
         disabled={isGoogleLoading}
       >
         {isGoogleLoading ? (
-          "Loading..."
+          "Carregando..."
         ) : (
           <>
             Acessar com Google
@@ -128,7 +128,7 @@ export function LoginForm() {
         </div>
 
         <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? "Logando..." : "logar"}
+          {isSubmitting ? "Logando..." : "Logar"}
         </Button>
       </form>
 

@@ -42,7 +42,7 @@ export function OrganizationSettingsForm({
     try {
       const result = await updateOrganizationSettings(organization.id, data);
       if (result.success) {
-        showToast("Settings saved successfully", { variant: "success" });
+        showToast("Configurações salvas com sucesso", { variant: "success" });
         if (data.slug !== organization.slug) {
           router.push(`/app/${data.slug}/settings`);
         }
@@ -50,7 +50,7 @@ export function OrganizationSettingsForm({
       }
     } catch (error) {
       showToast(
-        error instanceof Error ? error.message : "Failed to save settings",
+        error instanceof Error ? error.message : "Falha ao salvar configurações",
         { variant: "error" }
       );
     }
@@ -73,8 +73,7 @@ export function OrganizationSettingsForm({
           <p className="text-sm text-destructive">{errors.slug.message}</p>
         )}
         <p className="text-sm text-muted-foreground">
-          Usado na URL da sua organização:
-          <span className="font-mono">domain.com/app/<strong>[apelido]</strong></span>
+          <span>Usado na URL da sua organização:</span> <span className="font-mono">domain.com/app/<strong>[apelido]</strong></span>
         </p>
       </div>
 

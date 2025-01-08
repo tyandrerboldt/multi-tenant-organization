@@ -41,9 +41,9 @@ export function RoleItem({
     try {
       setIsDeleting(true);
       await deleteRole(organizationId, role.id);
-      showToast("Role deleted successfully", { variant: "success" });
+      showToast("Função deletada com sucesso", { variant: "success" });
     } catch (error) {
-      showToast("Failed to delete role", { variant: "error" });
+      showToast("Falha ao deletar função", { variant: "error" });
     } finally {
       setIsDeleting(false);
       setShowDeleteDialog(false);
@@ -52,7 +52,7 @@ export function RoleItem({
 
   const handleUpdateName = async () => {
     if (newName.trim() === "") {
-      showToast("Role name cannot be empty", { variant: "error" });
+      showToast("O nome da função não pode estar vazio", { variant: "error" });
       return;
     }
 
@@ -61,10 +61,10 @@ export function RoleItem({
         name: newName,
         permissions: role.permissions,
       });
-      showToast("Role name updated successfully", { variant: "success" });
+      showToast("Nome da função atualizado com sucesso", { variant: "success" });
       setIsEditing(false);
     } catch (error) {
-      showToast("Failed to update role name", { variant: "error" });
+      showToast("Falha ao atualizar o nome da função", { variant: "error" });
     }
   };
 
@@ -134,20 +134,19 @@ export function RoleItem({
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Role</AlertDialogTitle>
+            <AlertDialogTitle>Deletar Função</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this role? This action cannot be
-              undone.
+              Tem certeza de que deseja deletar esta função? Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-red-600 hover:bg-red-700"
               disabled={isDeleting}
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {isDeleting ? "Deletando..." : "Deletar"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

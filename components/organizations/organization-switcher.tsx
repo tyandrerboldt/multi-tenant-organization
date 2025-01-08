@@ -50,7 +50,7 @@ export function OrganizationSwitcher({
         );
         organization && setCurrentOrganization(organization);
       } catch (error) {
-        console.error("Failed to load organizations:", error);
+        console.error("Falha ao carregar organizações:", error);
       }
     };
 

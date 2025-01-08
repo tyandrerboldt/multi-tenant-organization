@@ -34,7 +34,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-4">
-        Benvindo a {organization.name}
+        Bem vindo a {organization.name}
       </h1>
       <p className="text-gray-600">
         Essa é a dashboard da sua organização.

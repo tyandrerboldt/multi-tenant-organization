@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Role as SystemRole } from "@prisma/client"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import { Role as SystemRole } from "@prisma/client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -11,7 +11,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,30 +21,32 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { removeMember, assignRole } from "@/lib/actions/team"
-import { UserX } from "lucide-react"
-import { RoleSelect } from "./role-select"
-import { Role } from "@/lib/types/permissions"
+} from "@/components/ui/alert-dialog";
+import { removeMember, assignRole } from "@/lib/actions/team";
+import { UserX } from "lucide-react";
+import { RoleSelect } from "./role-select";
+import { Role } from "@/lib/types/permissions";
 
 interface Member {
-  id: string
-  role: SystemRole
-  roleId: string | null
+  id: string;
+  role: SystemRole;
+  roleId: string | null;
   user: {
-    id: string
-    name: string | null
-    email: string | null
-    image: string | null
-  }
+    id: string;
+    name: string | null;
+    email: string | null;
+    image: string | null;
+  };
 }
 
 interface MemberListProps {
-  organizationId: string
-  members: Member[]
-  customRoles: Role[]
-  currentUserId: string
-  isOwner: boolean
+  organizationId: string;
+  members: Member[];
+  customRoles: Role[];
+  currentUserId: string;
+  isOwner: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
 }
 
 export function MemberList({
@@ -53,36 +55,37 @@ export function MemberList({
   customRoles,
   currentUserId,
   isOwner,
+  canUpdate,
+  canDelete,
 }: MemberListProps) {
-  const [isRemoving, setIsRemoving] = useState(false)
-  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null)
-  const [isUpdating, setIsUpdating] = useState(false)
+  const [isRemoving, setIsRemoving] = useState(false);
+  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const handleRemoveMember = async () => {
-    if (!selectedMemberId) return
+    if (!selectedMemberId) return;
 
     try {
-      setIsRemoving(true)
-      await removeMember(organizationId, selectedMemberId)
+      setIsRemoving(true);
+      await removeMember(organizationId, selectedMemberId);
     } catch (error) {
-      console.error("Falha ao remover membro:", error)
+      console.error("Falha ao remover membro:", error);
     } finally {
-      setIsRemoving(false)
-      setSelectedMemberId(null)
+      setIsRemoving(false);
+      setSelectedMemberId(null);
     }
-  }
+  };
 
   const handleRoleChange = async (memberId: string, roleId: string | null) => {
     try {
-      setIsUpdating(true)
-      await assignRole(organizationId, memberId, roleId)
+      setIsUpdating(true);
+      await assignRole(organizationId, memberId, roleId);
     } catch (error) {
-      console.error("Falha ao atualizar função do membro:", error)
+      console.error("Falha ao atualizar função do membro:", error);
     } finally {
-      setIsUpdating(false)
+      setIsUpdating(false);
     }
-  }
-
+  };
   return (
     <>
       <div className="overflow-x-auto -mx-4 sm:-mx-6">
@@ -92,7 +95,9 @@ export function MemberList({
               <TableRow>
                 <TableHead>Membro</TableHead>
                 <TableHead>Função</TableHead>
-                <TableHead className="w-[100px]">Ações</TableHead>
+                {(canUpdate || canDelete) && (
+                  <TableHead className="w-[100px]">Ações</TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -103,11 +108,15 @@ export function MemberList({
                       <Avatar className="h-8 w-8">
                         <AvatarImage src={member.user.image ?? undefined} />
                         <AvatarFallback>
-                          {member.user.name?.[0] ?? member.user.email?.[0] ?? "?"}
+                          {member.user.name?.[0] ??
+                            member.user.email?.[0] ??
+                            "?"}
                         </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0">
-                        <div className="font-medium truncate">{member.user.name}</div>
+                        <div className="font-medium truncate">
+                          {member.user.name}
+                        </div>
                         <div className="text-sm text-gray-500 truncate">
                           {member.user.email}
                         </div>
@@ -115,7 +124,7 @@ export function MemberList({
                     </div>
                   </TableCell>
                   <TableCell>
-                    {member.role !== SystemRole.OWNER && (
+                    {member.role !== SystemRole.OWNER && canUpdate && (
                       <RoleSelect
                         roles={customRoles}
                         currentRoleId={member.roleId}
@@ -123,24 +132,26 @@ export function MemberList({
                           handleRoleChange(member.id, roleId)
                         }
                         disabled={
-                          !isOwner || isUpdating || member.user.id === currentUserId
+                          isUpdating || member.user.id === currentUserId
                         }
                       />
                     )}
                   </TableCell>
-                  <TableCell>
-                    {member.role !== SystemRole.OWNER &&
-                      member.user.id !== currentUserId &&
-                      isOwner && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setSelectedMemberId(member.id)}
-                        >
-                          <UserX className="h-4 w-4" />
-                        </Button>
-                      )}
-                  </TableCell>
+                  {(canUpdate || canDelete) && (
+                    <TableCell>
+                      {member.role !== SystemRole.OWNER &&
+                        member.user.id !== currentUserId &&
+                        canDelete && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setSelectedMemberId(member.id)}
+                          >
+                            <UserX className="h-4 w-4" />
+                          </Button>
+                        )}
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
@@ -172,5 +183,5 @@ export function MemberList({
         </AlertDialogContent>
       </AlertDialog>
     </>
-  )
+  );
 }

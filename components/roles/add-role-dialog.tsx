@@ -46,12 +46,12 @@ export function AddRoleDialog({ organizationId }: AddRoleDialogProps) {
   const onSubmit = async (data: RoleFormData) => {
     try {
       await createRole(organizationId, data)
-      showToast("Role created successfully", { variant: "success" })
+      showToast("Função criada com sucesso", { variant: "success" })
       setOpen(false)
       reset()
     } catch (error) {
       showToast(
-        error instanceof Error ? error.message : "Failed to create role",
+        error instanceof Error ? error.message : "Falha ao criar função",
         { variant: "error" }
       )
     }

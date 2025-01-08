@@ -30,19 +30,19 @@ export function ResetPasswordForm() {
       if (result.success) {
         setIsSuccess(true)
         showToast(
-          "Password reset link sent",
+          "Link para redefinição de senha enviado",
           {
             variant: "success",
-            description: "If an account exists with this email, you will receive a password reset link."
+            description: "Se uma conta existir com este email, você receberá um link para redefinir a senha."
           }
         )
       }
     } catch (error) {
       showToast(
-        "Failed to send reset link",
+        "Falha ao enviar link de redefinição",
         {
           variant: "error",
-          description: error instanceof Error ? error.message : "Please try again later"
+          description: error instanceof Error ? error.message : "Por favor, tente novamente mais tarde"
         }
       )
     }
@@ -52,7 +52,7 @@ export function ResetPasswordForm() {
     return (
       <div className="space-y-4">
         <Button asChild className="w-full">
-          <Link href="/login">Return to login</Link>
+          <Link href="/login">Retornar ao login</Link>
         </Button>
       </div>
     )
@@ -66,7 +66,7 @@ export function ResetPasswordForm() {
           id="email"
           type="email"
           {...register("email")}
-          placeholder="your@email.com"
+          placeholder="seu@email.com"
         />
         {errors.email && (
           <p className="text-sm text-destructive">{errors.email.message}</p>
@@ -78,13 +78,13 @@ export function ResetPasswordForm() {
         className="w-full"
         disabled={isSubmitting}
       >
-        {isSubmitting ? "Sending..." : "Send reset link"}
+        {isSubmitting ? "Enviando..." : "Enviar link de redefinição"}
       </Button>
 
       <p className="text-center text-sm text-muted-foreground">
-        Remember your password?{" "}
+        Lembrou sua senha?{" "}
         <Link href="/login" className="text-primary hover:underline">
-          Back to login
+          Voltar ao login
         </Link>
       </p>
     </form>

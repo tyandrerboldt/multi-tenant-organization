@@ -36,9 +36,9 @@ export function InviteMemberForm({
     });
 
   const validateEmail = (email: string) => {
-    if (!email) return "Email is required";
+    if (!email) return "Email é obrigatório";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-      return "Invalid email address";
+      return "Endereço de email inválido";
     return null;
   };
 
@@ -65,12 +65,12 @@ export function InviteMemberForm({
 
       const result = await inviteMember(organizationId, { email, roleId });
       if (result.success) {
-        showToast("Member invited successfully", { variant: "success" });
+        showToast("Membro convidado com sucesso", { variant: "success" });
         resetForm();
       }
     } catch (error) {
       showToast(
-        error instanceof Error ? error.message : "Failed to invite member",
+        error instanceof Error ? error.message : "Falha ao convidar membro",
         { variant: "error" }
       );
     } finally {

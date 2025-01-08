@@ -27,6 +27,16 @@ const RESOURCES = [
       { name: "Remover", value: "delete" as const },
     ],
   },
+  {
+    name: "Equipe",
+    value: "team" as const,
+    actions: [
+      { name: "Visualizar", value: "read" as const },
+      { name: "Criar", value: "create" as const },
+      { name: "Atualizar", value: "update" as const },
+      { name: "Remover", value: "delete" as const },
+    ],
+  },
 ];
 
 export function PermissionForm({ role, organizationId }: PermissionFormProps) {
@@ -53,10 +63,10 @@ export function PermissionForm({ role, organizationId }: PermissionFormProps) {
   const onSubmit = async (data: RoleFormData) => {
     try {
       await updateRole(organizationId, role.id, data);
-      showToast("Permissions updated successfully", { variant: "success" });
+      showToast("Permissões atualizadas com sucesso", { variant: "success" });
     } catch (error) {
       showToast(
-        error instanceof Error ? error.message : "Failed to update permissions",
+        error instanceof Error ? error.message : "Falha ao atualizar permissões",
         { variant: "error" }
       );
     }
@@ -76,7 +86,7 @@ export function PermissionForm({ role, organizationId }: PermissionFormProps) {
     const currentActions = permissions[resourceIndex].actions;
     const allActions = resource.actions.map((a) => a.value);
 
-    // If all actions are selected, unselect all. Otherwise, select all.
+    // Se todas as ações estiverem selecionadas, desmarque todas. Caso contrário, selecione todas.
     const newActions =
       currentActions.length === allActions.length ? [] : allActions;
 

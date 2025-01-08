@@ -59,13 +59,13 @@ export function AddDomainDialog({
 
     try {
       await createDomain(organizationId, data)
-      showToast("Domain added successfully", { variant: "success" })
+      showToast("Domínio adicionado com sucesso", { variant: "success" })
       setOpen(false)
       reset()
       router.refresh()
     } catch (error) {
       showToast(
-        error instanceof Error ? error.message : "Failed to add domain",
+        error instanceof Error ? error.message : "Falha ao adicionar domínio",
         { variant: "error" }
       )
     }
@@ -82,23 +82,23 @@ export function AddDomainDialog({
         <DialogTrigger asChild>
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            Add Domain
+            Adicionar Domínio
           </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Domain</DialogTitle>
+            <DialogTitle>Adicionar Domínio</DialogTitle>
             <DialogDescription>
-              Add a new domain to your organization.
+              Adicione um novo domínio à sua organização.
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Domain Name</Label>
+              <Label htmlFor="name">Nome do Domínio</Label>
               <Input
                 id="name"
-                placeholder="example.com"
+                placeholder="exemplo.com"
                 {...register("name")}
               />
               {errors.name && (
@@ -112,13 +112,13 @@ export function AddDomainDialog({
                 variant="outline"
                 onClick={() => setOpen(false)}
               >
-                Cancel
+                Cancelar
               </Button>
               <Button
                 type="submit"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Adding..." : "Add Domain"}
+                {isSubmitting ? "Adicionando..." : "Adicionar Domínio"}
               </Button>
             </div>
           </form>

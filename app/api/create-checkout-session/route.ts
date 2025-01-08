@@ -8,7 +8,7 @@ export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user) {
-      return new NextResponse("Unauthorized", { status: 401 })
+      return new NextResponse("Não autorizado", { status: 401 })
     }
 
     const { priceId, organizationId, customerId } = await req.json()
@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     })
 
     if (!organization) {
-      return new NextResponse("Organization not found", { status: 404 })
+      return new NextResponse("Organização não encontrada", { status: 404 })
     }
 
     const checkoutSession = await stripe.checkout.sessions.create({
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ sessionId: checkoutSession.id })
   } catch (error) {
-    console.error("Error creating checkout session:", error)
-    return new NextResponse("Internal error", { status: 500 })
+    console.error("Erro ao criar sessão de checkout:", error)
+    return new NextResponse("Erro interno", { status: 500 })
   }
 }

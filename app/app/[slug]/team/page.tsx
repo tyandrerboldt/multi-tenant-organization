@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card"
 import { InviteMemberDialog } from "@/components/team/invite-member-dialog"
 import { MemberList } from "@/components/team/member-list"
 import { getTeamMembers } from "@/lib/actions/team"
-import { getRoles } from "@/lib/actions/roles"
+import { getRoles, checkPermission } from "@/lib/actions/roles"
 import { getServerSession } from "next-auth/next"
 import { Role } from "@prisma/client"
 import { getOrganizationUsage } from "@/lib/plans/usage"
@@ -41,6 +41,18 @@ export default async function TeamPage({ params }: TeamPageProps) {
     redirect("/app")
   }
 
+  // Verificar permissão de leitura
+  const canRead = await checkPermission(
+    session.user.id,
+    organization.id,
+    "team",
+    "read"
+  )
+
+  if (!canRead) {
+    redirect(`/app/${params.slug}`)
+  }
+
   const [members, customRoles, usage] = await Promise.all([
     getTeamMembers(organization.id),
     getRoles(organization.id),
@@ -54,6 +66,14 @@ export default async function TeamPage({ params }: TeamPageProps) {
   const isOwner = currentMembership?.role === Role.OWNER
   const memberLimit = getPlanResourceLimit(organization.plan, "members")
 
+  // Verificar permissão de criação para mostrar botão de convite
+  const canCreate = isOwner || await checkPermission(
+    session.user.id,
+    organization.id,
+    "team",
+    "create"
+  )
+
   return (
     <div className="max-w-6xl">
       <div className="flex justify-between items-center mb-6">
@@ -64,7 +84,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
           </p>
         </div>
 
-        {isOwner && (
+        {canCreate && (
           <InviteMemberDialog
             trigger={
               <Button>
@@ -87,6 +107,18 @@ export default async function TeamPage({ params }: TeamPageProps) {
           customRoles={customRoles}
           currentUserId={session.user.id}
           isOwner={isOwner}
+          canUpdate={isOwner || await checkPermission(
+            session.user.id,
+            organization.id,
+            "team",
+            "update"
+          )}
+          canDelete={isOwner || await checkPermission(
+            session.user.id,
+            organization.id,
+            "team",
+            "delete"
+          )}
         />
       </Card>
     </div>

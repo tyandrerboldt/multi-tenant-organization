@@ -11,7 +11,7 @@ export async function createOrganization(data: OrganizationFormData) {
   const session = await getServerSession(authOptions)
   
   if (!session?.user?.id) {
-    throw new Error("Unauthorized")
+    throw new Error("Não autorizado")
   }
 
   const existingOrg = await prisma.organization.findUnique({
@@ -19,10 +19,10 @@ export async function createOrganization(data: OrganizationFormData) {
   })
 
   if (existingOrg) {
-    throw new Error("Organization slug already exists")
+    throw new Error("Slug da organização já existe")
   }
 
-  // Create Stripe customer
+  // Criar cliente no Stripe
   const stripeCustomer = await createStripeCustomer(
     session.user.email!,
     data.slug
@@ -49,7 +49,7 @@ export async function getUserOrganizations() {
   const session = await getServerSession(authOptions)
   
   if (!session?.user?.id) {
-    throw new Error("Unauthorized")
+    throw new Error("Não autorizado")
   }
 
   const memberships = await prisma.membership.findMany({

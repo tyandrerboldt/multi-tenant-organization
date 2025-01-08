@@ -14,10 +14,10 @@ export async function updateOrganizationSettings(
   const session = await getServerSession(authOptions)
 
   if (!session?.user?.id) {
-    throw new Error("Unauthorized")
+    throw new Error("Não autorizado")
   }
 
-  // Check if user has permission to update settings
+  // Verificar se o usuário tem permissão para atualizar as configurações
   const membership = await prisma.membership.findFirst({
     where: {
       organizationId,
@@ -29,10 +29,10 @@ export async function updateOrganizationSettings(
   })
 
   if (!membership) {
-    throw new Error("You don't have permission to update organization settings")
+    throw new Error("Você não tem permissão para atualizar as configurações da organização")
   }
 
-  // Check if slug is already taken by another organization
+  // Verificar se o slug já está sendo usado por outra organização
   const existingOrg = await prisma.organization.findFirst({
     where: {
       slug: data.slug,
@@ -41,7 +41,7 @@ export async function updateOrganizationSettings(
   })
 
   if (existingOrg) {
-    throw new Error("Organization slug already exists")
+    throw new Error("Slug da organização já existe")
   }
 
   const organization = await prisma.organization.update({
@@ -60,10 +60,10 @@ export async function deleteOrganization(organizationId: string) {
   const session = await getServerSession(authOptions)
 
   if (!session?.user?.id) {
-    throw new Error("Unauthorized")
+    throw new Error("Não autorizado")
   }
 
-  // Check if user is the owner
+  // Verificar se o usuário é o proprietário
   const membership = await prisma.membership.findFirst({
     where: {
       organizationId,
@@ -73,7 +73,7 @@ export async function deleteOrganization(organizationId: string) {
   })
 
   if (!membership) {
-    throw new Error("Only the organization owner can delete the organization")
+    throw new Error("Somente o proprietário da organização pode deletar a organização")
   }
 
   await prisma.organization.delete({

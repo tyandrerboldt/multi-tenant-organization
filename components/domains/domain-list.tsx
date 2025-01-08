@@ -56,7 +56,7 @@ export function DomainList({
       await deleteDomain(organizationId, deletingDomain.id)
       router.refresh()
     } catch (error) {
-      console.error("Failed to delete domain:", error)
+      console.error("Falha ao remover domínio:", error)
     } finally {
       setIsDeleting(false)
       setDeletingDomain(null)

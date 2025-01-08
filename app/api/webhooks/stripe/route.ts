@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       process.env.STRIPE_WEBHOOK_SECRET!
     )
   } catch (error) {
-    return new NextResponse(`Webhook Error: ${error.message}`, { status: 400 })
+    return new NextResponse(`Erro no Webhook: ${error.message}`, { status: 400 })
   }
 
   try {
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
         const plan = PRICE_TO_PLAN[priceId]
 
         if (!plan) {
-          console.error("Unknown price ID:", priceId)
+          console.error("ID de preço desconhecido:", priceId)
           break
         }
 
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
           },
         })
 
-        // Revalidate the billing page
+        // Revalidar a página de faturamento
         revalidatePath(`/app/${session.metadata.slug}/settings/billing`)
         break
       }
@@ -75,7 +75,7 @@ export async function POST(req: Request) {
           const plan = PRICE_TO_PLAN[priceId]
 
           if (!plan) {
-            console.error("Unknown price ID:", priceId)
+            console.error("ID de preço desconhecido:", priceId)
             break
           }
 
@@ -85,7 +85,7 @@ export async function POST(req: Request) {
           })
         }
 
-        // Revalidate the billing page
+        // Revalidar a página de faturamento
         revalidatePath(`/app/${organization.slug}/settings/billing`)
         break
       }
@@ -93,7 +93,7 @@ export async function POST(req: Request) {
 
     return new NextResponse(null, { status: 200 })
   } catch (error) {
-    console.error("Error processing webhook:", error)
-    return new NextResponse("Webhook handler failed", { status: 500 })
+    console.error("Erro ao processar webhook:", error)
+    return new NextResponse("Falha no manipulador de webhook", { status: 500 })
   }
 }

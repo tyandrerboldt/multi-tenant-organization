@@ -41,7 +41,7 @@ export function AccountForm({ user }: AccountFormProps) {
     try {
       const result = await updateAccount(data)
       if (result.success) {
-        // Update session with new data
+        // Atualizar sessão com novos dados
         await updateSession({
           ...user,
           name: data.name,
@@ -49,12 +49,12 @@ export function AccountForm({ user }: AccountFormProps) {
           image: data.image,
         })
         
-        showToast("Account updated successfully", { variant: "success" })
+        showToast("Conta atualizada com sucesso", { variant: "success" })
         router.refresh()
       }
     } catch (error) {
       showToast(
-        error instanceof Error ? error.message : "Failed to update account",
+        error instanceof Error ? error.message : "Falha ao atualizar a conta",
         { variant: "error" }
       )
     }
@@ -71,7 +71,7 @@ export function AccountForm({ user }: AccountFormProps) {
             </AvatarFallback>
           </Avatar>
           <div>
-            <Label htmlFor="image">Avatar URL</Label>
+            <Label htmlFor="image">URL do Avatar</Label>
             <Input
               id="image"
               {...register("image")}

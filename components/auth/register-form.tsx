@@ -20,17 +20,16 @@ export function RegisterForm() {
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
   });
-
   const onSubmit = async (data: RegisterFormData) => {
     try {
       const result = await registerUser(data);
       if (result.success) {
         router.push("/login?registered=true");
-        showToast("Account created successfully", { variant: "success" });
+        showToast("Conta criada com sucesso", { variant: "success" });
       }
     } catch (error) {
       showToast(
-        error instanceof Error ? error.message : "Something went wrong",
+        error instanceof Error ? error.message : "Algo deu errado",
         { variant: "error" }
       );
     }
@@ -73,7 +72,7 @@ export function RegisterForm() {
       </div>
 
       <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {isSubmitting ? "Criando sua conta.." : "Criar conta"}
+        {isSubmitting ? "Criando sua conta..." : "Criar conta"}
       </Button>
     </form>
   );

@@ -15,8 +15,8 @@ export default async function NewOrganizationPage() {
     <div className="max-w-md mx-auto">
       <Card className="p-8">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold">Create Organization</h1>
-          <p className="text-gray-600">Set up your new organization</p>
+          <h1 className="text-2xl font-bold">Criar Organização</h1>
+          <p className="text-gray-600">Configure sua nova organização</p>
         </div>
         
         <OrganizationForm />
