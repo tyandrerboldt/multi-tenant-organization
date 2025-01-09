@@ -17,7 +17,7 @@ export function MobileSidebar({ organizationSlug }: SidebarProps) {
       <SheetTrigger asChild>
         <Button
           variant="ghost"
-          className="lg:hidden"
+          className="fixed top-2 left-2 lg:hidden"
           size="icon"
         >
           <Menu className="h-5 w-5" />

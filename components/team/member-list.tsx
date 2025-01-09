@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Role as SystemRole } from "@prisma/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -86,77 +87,121 @@ export function MemberList({
       setIsUpdating(false);
     }
   };
+
+  // Mobile view - Cards
+  const MobileView = () => (
+    <div className="grid grid-cols-1 gap-4">
+      {members.map((member) => (
+        <Card key={member.id} className="p-4">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={member.user.image ?? undefined} />
+                <AvatarFallback>
+                  {member.user.name?.[0] ?? member.user.email?.[0] ?? "?"}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <div className="font-medium">{member.user.name}</div>
+                <div className="text-sm text-gray-500">{member.user.email}</div>
+              </div>
+            </div>
+            {member.role !== SystemRole.OWNER &&
+              member.user.id !== currentUserId &&
+              canDelete && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedMemberId(member.id)}
+                >
+                  <UserX className="h-4 w-4" />
+                </Button>
+              )}
+          </div>
+          {member.role !== SystemRole.OWNER && canUpdate && (
+            <div className="mt-4">
+              <RoleSelect
+                roles={customRoles}
+                currentRoleId={member.roleId}
+                onRoleChange={(roleId) => handleRoleChange(member.id, roleId)}
+                disabled={isUpdating || member.user.id === currentUserId}
+              />
+            </div>
+          )}
+        </Card>
+      ))}
+    </div>
+  );
+
+  // Desktop view - Table
+  const DesktopView = () => (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Membro</TableHead>
+          <TableHead>Função</TableHead>
+          {(canUpdate || canDelete) && (
+            <TableHead className="text-right">Ações</TableHead>
+          )}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {members.map((member) => (
+          <TableRow key={member.id}>
+            <TableCell>
+              <div className="flex items-center gap-2">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={member.user.image ?? undefined} />
+                  <AvatarFallback>
+                    {member.user.name?.[0] ?? member.user.email?.[0] ?? "?"}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="min-w-0">
+                  <div className="font-medium truncate">{member.user.name}</div>
+                  <div className="text-sm text-gray-500 truncate">
+                    {member.user.email}
+                  </div>
+                </div>
+              </div>
+            </TableCell>
+            <TableCell>
+              {member.role !== SystemRole.OWNER && canUpdate && (
+                <RoleSelect
+                  roles={customRoles}
+                  currentRoleId={member.roleId}
+                  onRoleChange={(roleId) => handleRoleChange(member.id, roleId)}
+                  disabled={isUpdating || member.user.id === currentUserId}
+                />
+              )}
+            </TableCell>
+            {(canUpdate || canDelete) && (
+              <TableCell className="text-right">
+                {member.role !== SystemRole.OWNER &&
+                  member.user.id !== currentUserId &&
+                  canDelete && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelectedMemberId(member.id)}
+                    >
+                      <UserX className="h-4 w-4" />
+                    </Button>
+                  )}
+              </TableCell>
+            )}
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+
   return (
     <>
-      <div className="overflow-x-auto -mx-4 sm:-mx-6">
-        <div className="inline-block min-w-full align-middle">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Membro</TableHead>
-                <TableHead>Função</TableHead>
-                {(canUpdate || canDelete) && (
-                  <TableHead className="w-[100px]">Ações</TableHead>
-                )}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {members.map((member) => (
-                <TableRow key={member.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={member.user.image ?? undefined} />
-                        <AvatarFallback>
-                          {member.user.name?.[0] ??
-                            member.user.email?.[0] ??
-                            "?"}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="min-w-0">
-                        <div className="font-medium truncate">
-                          {member.user.name}
-                        </div>
-                        <div className="text-sm text-gray-500 truncate">
-                          {member.user.email}
-                        </div>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {member.role !== SystemRole.OWNER && canUpdate && (
-                      <RoleSelect
-                        roles={customRoles}
-                        currentRoleId={member.roleId}
-                        onRoleChange={(roleId) =>
-                          handleRoleChange(member.id, roleId)
-                        }
-                        disabled={
-                          isUpdating || member.user.id === currentUserId
-                        }
-                      />
-                    )}
-                  </TableCell>
-                  {(canUpdate || canDelete) && (
-                    <TableCell>
-                      {member.role !== SystemRole.OWNER &&
-                        member.user.id !== currentUserId &&
-                        canDelete && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setSelectedMemberId(member.id)}
-                          >
-                            <UserX className="h-4 w-4" />
-                          </Button>
-                        )}
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+      <div className="block md:hidden">
+        <MobileView />
+      </div>
+      <div className="hidden md:block">
+        <DesktopView />
       </div>
 
       <AlertDialog
@@ -173,10 +218,7 @@ export function MemberList({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleRemoveMember}
-              disabled={isRemoving}
-            >
+            <AlertDialogAction onClick={handleRemoveMember} disabled={isRemoving}>
               {isRemoving ? "Removendo..." : "Remover"}
             </AlertDialogAction>
           </AlertDialogFooter>

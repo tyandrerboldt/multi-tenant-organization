@@ -9,8 +9,8 @@ import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from 'next-themes';
 
 export const metadata: Metadata = {
-  title: 'Modern SaaS Platform',
-  description: 'A modern SaaS platform built with Next.js',
+  title: 'Platform',
+  description: 'Platform built with Next.js',
 };
 
 export default async function RootLayout({

@@ -28,7 +28,7 @@ export function RoleSelect({
       onValueChange={(value) => onRoleChange(value || null)}
       disabled={disabled}
     >
-      <SelectTrigger className="w-[200px]">
+      <SelectTrigger className="w-full md:max-w-[200px]">
         <SelectValue>
           {currentRoleId
             ? roles.find((role) => role.id == currentRoleId)?.name
