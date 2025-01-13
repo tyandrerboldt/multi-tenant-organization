@@ -18,6 +18,19 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
     redirect("/login");
   }
 
+  const membership = await prisma.membership.findFirst({
+    where: {
+      organization: {
+        slug: params.slug,
+      },
+      userId: session.user.id,
+    },
+  });
+
+  if (!membership) {
+    redirect("/app");
+  }
+
   const organization = await prisma.organization.findFirst({
     where: {
       slug: params.slug,
@@ -32,13 +45,6 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
   if (!organization) {
     redirect("/create-organization");
   }
-
-  const membership = await prisma.membership.findFirst({
-    where: {
-      organizationId: organization.id,
-      userId: session.user.id,
-    },
-  });
 
   return (
     <div className="space-y-6 max-w-3xl">

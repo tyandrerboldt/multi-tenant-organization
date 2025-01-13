@@ -1,10 +1,9 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { Role as SystemRole } from "@prisma/client";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { useState } from "react"
+import { Role as SystemRole } from "@prisma/client"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
 import {
   Table,
   TableBody,
@@ -12,7 +11,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/ui/table"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,32 +21,31 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { removeMember, assignRole } from "@/lib/actions/team";
-import { UserX } from "lucide-react";
-import { RoleSelect } from "./role-select";
-import { Role } from "@/lib/types/permissions";
+} from "@/components/ui/alert-dialog"
+import { removeMember, assignRole } from "@/lib/actions/team"
+import { UserX } from "lucide-react"
+import { RoleSelect } from "./role-select"
+import { Role } from "@/lib/types/permissions"
+import { usePermissions } from "@/lib/hooks/use-permissions"
 
 interface Member {
-  id: string;
-  role: SystemRole;
-  roleId: string | null;
+  id: string
+  role: SystemRole
+  roleId: string | null
   user: {
-    id: string;
-    name: string | null;
-    email: string | null;
-    image: string | null;
-  };
+    id: string
+    name: string | null
+    email: string | null
+    image: string | null
+  }
 }
 
 interface MemberListProps {
-  organizationId: string;
-  members: Member[];
-  customRoles: Role[];
-  currentUserId: string;
-  isOwner: boolean;
-  canUpdate: boolean;
-  canDelete: boolean;
+  organizationId: string
+  members: Member[]
+  customRoles: Role[]
+  currentUserId: string
+  isOwner: boolean
 }
 
 export function MemberList({
@@ -56,43 +54,46 @@ export function MemberList({
   customRoles,
   currentUserId,
   isOwner,
-  canUpdate,
-  canDelete,
 }: MemberListProps) {
-  const [isRemoving, setIsRemoving] = useState(false);
-  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [isRemoving, setIsRemoving] = useState(false)
+  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null)
+  const [isUpdating, setIsUpdating] = useState(false)
+  const { checkPermission } = usePermissions()
+
+  // Se for OWNER, tem todas as permissões
+  const canUpdate = isOwner || checkPermission("team", "update")
+  const canDelete = isOwner || checkPermission("team", "delete")
 
   const handleRemoveMember = async () => {
-    if (!selectedMemberId) return;
+    if (!selectedMemberId) return
 
     try {
-      setIsRemoving(true);
-      await removeMember(organizationId, selectedMemberId);
+      setIsRemoving(true)
+      await removeMember(organizationId, selectedMemberId)
     } catch (error) {
-      console.error("Falha ao remover membro:", error);
+      console.error("Falha ao remover membro:", error)
     } finally {
-      setIsRemoving(false);
-      setSelectedMemberId(null);
+      setIsRemoving(false)
+      setSelectedMemberId(null)
     }
-  };
+  }
 
   const handleRoleChange = async (memberId: string, roleId: string | null) => {
     try {
-      setIsUpdating(true);
-      await assignRole(organizationId, memberId, roleId);
+      setIsUpdating(true)
+      await assignRole(organizationId, memberId, roleId)
     } catch (error) {
-      console.error("Falha ao atualizar função do membro:", error);
+      console.error("Falha ao atualizar função do membro:", error)
     } finally {
-      setIsUpdating(false);
+      setIsUpdating(false)
     }
-  };
+  }
 
   // Mobile view - Cards
   const MobileView = () => (
     <div className="grid grid-cols-1 gap-4">
       {members.map((member) => (
-        <Card key={member.id} className="p-4">
+        <div key={member.id} className="p-4 border rounded-lg">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10">
@@ -128,10 +129,10 @@ export function MemberList({
               />
             </div>
           )}
-        </Card>
+        </div>
       ))}
     </div>
-  );
+  )
 
   // Desktop view - Table
   const DesktopView = () => (
@@ -193,7 +194,7 @@ export function MemberList({
         ))}
       </TableBody>
     </Table>
-  );
+  )
 
   return (
     <>
@@ -225,5 +226,5 @@ export function MemberList({
         </AlertDialogContent>
       </AlertDialog>
     </>
-  );
+  )
 }

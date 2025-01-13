@@ -16,7 +16,7 @@ interface RolesPageProps {
 export default async function RolesPage({ params }: RolesPageProps) {
   const session = await getServerSession(authOptions)
 
-  if (!session?.user) {
+  if (!session?.user?.id) {
     redirect("/login")
   }
 

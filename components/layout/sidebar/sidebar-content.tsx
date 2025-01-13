@@ -1,15 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { OrganizationSwitcher } from "@/components/organizations/organization-switcher";
 import { UserMenu } from "@/components/user/user-menu";
-import { MenuItem, SidebarProps } from "./types";
-import { MenuContent } from "./menu-content";
-import { createMenuItems } from "./menu-items";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { MenuContent } from "./menu-content";
+import { createMenuItems } from "./menu-items";
 import { createAppMenuItems } from "./menu-items/app-menu-items";
+import { MenuItem, SidebarProps } from "./types";
 
 interface SidebarContentProps extends SidebarProps {
   className?: string;

@@ -2,16 +2,14 @@ import { redirect } from "next/navigation"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { Card } from "@/components/ui/card"
-import { InviteMemberDialog } from "@/components/team/invite-member-dialog"
 import { MemberList } from "@/components/team/member-list"
 import { getTeamMembers } from "@/lib/actions/team"
-import { getRoles, checkPermission } from "@/lib/actions/roles"
+import { getRoles } from "@/lib/actions/roles"
 import { getServerSession } from "next-auth/next"
 import { Role } from "@prisma/client"
 import { getOrganizationUsage } from "@/lib/plans/usage"
 import { getPlanResourceLimit } from "@/lib/plans/limits"
-import { Button } from "@/components/ui/button"
-import { UserPlus } from "lucide-react"
+import { TeamActions } from "@/components/team/team-actions"
 
 interface TeamPageProps {
   params: {
@@ -22,7 +20,7 @@ interface TeamPageProps {
 export default async function TeamPage({ params }: TeamPageProps) {
   const session = await getServerSession(authOptions)
 
-  if (!session?.user) {
+  if (!session?.user?.id) {
     redirect("/login")
   }
 
@@ -41,18 +39,6 @@ export default async function TeamPage({ params }: TeamPageProps) {
     redirect("/app")
   }
 
-  // Verificar permissão de leitura
-  const canRead = await checkPermission(
-    session.user.id,
-    organization.id,
-    "team",
-    "read"
-  )
-
-  if (!canRead) {
-    redirect(`/app/${params.slug}`)
-  }
-
   const [members, customRoles, usage] = await Promise.all([
     getTeamMembers(organization.id),
     getRoles(organization.id),
@@ -66,14 +52,6 @@ export default async function TeamPage({ params }: TeamPageProps) {
   const isOwner = currentMembership?.role === Role.OWNER
   const memberLimit = getPlanResourceLimit(organization.plan, "members")
 
-  // Verificar permissão de criação para mostrar botão de convite
-  const canCreate = isOwner || await checkPermission(
-    session.user.id,
-    organization.id,
-    "team",
-    "create"
-  )
-
   return (
     <div className="max-w-6xl">
       <div className="flex justify-between items-center mb-6">
@@ -84,20 +62,12 @@ export default async function TeamPage({ params }: TeamPageProps) {
           </p>
         </div>
 
-        {canCreate && (
-          <InviteMemberDialog
-            trigger={
-              <Button>
-                <UserPlus className="mr-2 h-4 w-4" />
-                Convidar
-              </Button>
-            }
-            organizationId={organization.id}
-            customRoles={customRoles}
-            plan={organization.plan}
-            currentUsage={usage.members - 1}
-          />
-        )}
+        <TeamActions
+          organizationId={organization.id}
+          customRoles={customRoles}
+          plan={organization.plan}
+          currentUsage={usage.members - 1}
+        />
       </div>
 
       <Card className="p-6">
@@ -107,18 +77,6 @@ export default async function TeamPage({ params }: TeamPageProps) {
           customRoles={customRoles}
           currentUserId={session.user.id}
           isOwner={isOwner}
-          canUpdate={isOwner || await checkPermission(
-            session.user.id,
-            organization.id,
-            "team",
-            "update"
-          )}
-          canDelete={isOwner || await checkPermission(
-            session.user.id,
-            organization.id,
-            "team",
-            "delete"
-          )}
         />
       </Card>
     </div>

@@ -162,11 +162,11 @@ export async function checkPermission(
   if (!membership) return false
 
   // OWNER tem acesso total
-  if (membership.role === Role.OWNER) return true
+  if (membership.role == Role.OWNER) return true
 
   // Verificar permissões específicas do usuário
   const userPermission = membership.customRole?.permissions.find(
-    p => p.resource === resource
+    p => p.resource == resource
   )
 
   if (userPermission?.actions.includes(action)) return true

@@ -1,9 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Check, ChevronsUpDown, PlusCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -20,11 +17,18 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { getUserOrganizations } from "@/lib/actions/organization";
+import { Role } from "@prisma/client";
+import { Check, ChevronsUpDown, PlusCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 type Organization = {
   id: string;
   name: string;
   slug: string;
+  memberships: {
+    role: Role;
+  }[];
 };
 
 interface OrganizationSwitcherProps {
@@ -55,7 +59,27 @@ export function OrganizationSwitcher({
     };
 
     loadOrganizations();
-  }, []);
+  }, [currentOrganizationSlug]);
+
+  const getRoleBadge = (role: Role) => {
+    const variants = {
+      OWNER: "default",
+      ADMIN: "secondary",
+      MEMBER: "outline",
+    } as const;
+
+    const labels = {
+      OWNER: "Proprietário",
+      ADMIN: "Admin",
+      MEMBER: "Membro",
+    };
+
+    return (
+      <Badge variant={variants[role]} className="ml-2">
+        {labels[role]}
+      </Badge>
+    );
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -64,19 +88,25 @@ export function OrganizationSwitcher({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          aria-label="Selecionar"
-          className="w-full"
+          aria-label="Selecionar organização"
+          className="w-full justify-between"
         >
-          {currentOrganization?.name ?? "Selecionar"}
-          <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+          <div className="flex items-center">
+            <span className="truncate">
+              {currentOrganization?.name ?? "Selecionar organização"}
+            </span>
+            {currentOrganization?.memberships[0]?.role &&
+              getRoleBadge(currentOrganization.memberships[0].role)}
+          </div>
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[250px] p-0">
+      <PopoverContent className="w-[300px] p-0">
         <Command>
-          <CommandInput placeholder="Buscar..." />
+          <CommandInput placeholder="Buscar organização..." />
           <CommandList>
-            <CommandEmpty>Nada encontrado.</CommandEmpty>
-            <CommandGroup heading="Organizações">
+            <CommandEmpty>Nenhuma organização encontrada.</CommandEmpty>
+            <CommandGroup heading="Suas organizações">
               {organizations.map((org) => (
                 <CommandItem
                   key={org.id}
@@ -84,12 +114,16 @@ export function OrganizationSwitcher({
                     router.push(`/app/${org.slug}`);
                     setOpen(false);
                   }}
-                  className="text-sm"
+                  className="flex items-center justify-between"
                 >
-                  {org.name}
-                  {currentOrganizationSlug === org.slug && (
-                    <Check className="ml-auto h-4 w-4" />
-                  )}
+                  <span>{org.name}</span>
+                  <div className="flex items-center">
+                    {org.memberships[0]?.role &&
+                      getRoleBadge(org.memberships[0].role)}
+                    {currentOrganizationSlug === org.slug && (
+                      <Check className="ml-2 h-4 w-4" />
+                    )}
+                  </div>
                 </CommandItem>
               ))}
             </CommandGroup>

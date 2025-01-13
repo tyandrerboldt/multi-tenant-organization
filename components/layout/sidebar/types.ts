@@ -1,4 +1,5 @@
 import { LucideIcon } from "lucide-react"
+import { Resource } from "@/lib/types/permissions"
 
 export interface MenuItem {
   label: string
@@ -6,6 +7,7 @@ export interface MenuItem {
   href?: string
   submenu?: MenuItem[]
   onClick?: () => void
+  resource?: Resource
 }
 
 export interface SidebarProps {

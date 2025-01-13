@@ -37,6 +37,16 @@ const RESOURCES = [
       { name: "Remover", value: "delete" as const },
     ],
   },
+  {
+    name: "Configurações",
+    value: "settings" as const,
+    actions: [
+      { name: "Visualizar", value: "read" as const },
+      { name: "Criar", value: "create" as const },
+      { name: "Atualizar", value: "update" as const },
+      { name: "Remover", value: "delete" as const },
+    ],
+  },
 ];
 
 export function PermissionForm({ role, organizationId }: PermissionFormProps) {
@@ -52,7 +62,7 @@ export function PermissionForm({ role, organizationId }: PermissionFormProps) {
       permissions: RESOURCES.map((resource) => ({
         resource: resource.value,
         actions:
-          role.permissions.find((p) => p.resource === resource.value)
+          role.permissions.find((p) => p.resource == resource.value)
             ?.actions || [],
       })),
     },
@@ -75,7 +85,7 @@ export function PermissionForm({ role, organizationId }: PermissionFormProps) {
   const toggleAction = (resourceIndex: number, action: string) => {
     const currentActions = permissions[resourceIndex].actions;
     const newActions = currentActions.includes(action)
-      ? currentActions.filter((a) => a !== action)
+      ? currentActions.filter((a) => a != action)
       : [...currentActions, action];
 
     setValue(`permissions.${resourceIndex}.actions`, newActions);

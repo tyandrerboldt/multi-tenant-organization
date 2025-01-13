@@ -52,15 +52,28 @@ export async function getUserOrganizations() {
     throw new Error("Não autorizado")
   }
 
-  const memberships = await prisma.membership.findMany({
-    where: { userId: session.user.id },
+  const organizations = await prisma.organization.findMany({
+    where: {
+      memberships: {
+        some: {
+          userId: session.user.id
+        }
+      }
+    },
     include: {
-      organization: true,
+      memberships: {
+        where: {
+          userId: session.user.id
+        },
+        select: {
+          role: true
+        }
+      }
     },
     orderBy: {
       createdAt: "desc",
     },
   })
 
-  return memberships.map(m => m.organization)
+  return organizations
 }
