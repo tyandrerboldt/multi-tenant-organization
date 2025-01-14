@@ -33,6 +33,7 @@ export async function createProperty(
   const property = await prisma.property.create({
     data: {
       name: data.name,
+      code: data.code,
       slug,
       type: data.type,
       status: data.status,
@@ -307,11 +308,17 @@ export async function updateProperty(
   }
 
   const slug = slugify(data.name, { lower: true, strict: true });
+  
+  const codeExists = await issetCode(data.code, organizationId, propertyId)
+  if(codeExists) {
+    throw new Error("Esse código já está em uso")
+  }
 
   const updatedProperty = await prisma.property.update({
     where: { id: propertyId },
     data: {
       name: data.name,
+      code: data.code,
       slug,
       type: data.type,
       status: data.status,
