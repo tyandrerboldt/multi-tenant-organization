@@ -41,9 +41,9 @@ model Session {
 }
 
 model User {
-  id            String          @id @default(cuid())
+  id            String           @id @default(cuid())
   name          String?
-  email         String?         @unique
+  email         String?          @unique
   emailVerified DateTime?
   image         String?
   password      String?
@@ -72,18 +72,19 @@ enum Theme {
 }
 
 model Organization {
-  id                   String       @id @default(cuid())
+  id                   String            @id @default(cuid())
   name                 String
-  slug                 String       @unique
-  plan                 Plan         @default(FREE)
-  stripeCustomerId     String?      @unique
-  stripeSubscriptionId String?      @unique
+  slug                 String            @unique
+  plan                 Plan              @default(FREE)
+  stripeCustomerId     String?           @unique
+  stripeSubscriptionId String?           @unique
   memberships          Membership[]
-  domains             Domain[]
-  userPreferences     UserPreferences[]
-  customRoles         CustomRole[]
-  createdAt           DateTime     @default(now())
-  updatedAt           DateTime     @updatedAt
+  domains              Domain[]
+  userPreferences      UserPreferences[]
+  customRoles          CustomRole[]
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  Property             Property[]
 }
 
 model Membership {
@@ -116,14 +117,14 @@ model Domain {
 }
 
 model UserPreferences {
-  id                   String       @id @default(cuid())
-  user                 User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId               String       @unique
-  defaultOrganization  Organization? @relation(fields: [defaultOrganizationId], references: [id], onDelete: SetNull)
+  id                    String        @id @default(cuid())
+  user                  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                String        @unique
+  defaultOrganization   Organization? @relation(fields: [defaultOrganizationId], references: [id], onDelete: SetNull)
   defaultOrganizationId String?
-  theme                Theme        @default(system)
-  createdAt           DateTime     @default(now())
-  updatedAt           DateTime     @updatedAt
+  theme                 Theme         @default(system)
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
 
   @@index([userId])
   @@index([defaultOrganizationId])
@@ -148,11 +149,75 @@ model Permission {
   role      CustomRole? @relation("RolePermissions", fields: [roleId], references: [id], onDelete: Cascade)
   roleId    String?
   userId    String?
-  resource  String      // e.g., "domains"
-  actions   String[]    // e.g., ["read", "create", "update", "delete"]
+  resource  String // e.g., "domains"
+  actions   String[] // e.g., ["read", "create", "update", "delete"]
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
 
   @@index([roleId])
   @@index([userId])
+}
+
+model Property {
+  id             String          @id @default(cuid())
+  code           String          @default(nanoid(6))
+  name           String
+  slug           String
+  type           PropertyType    @default(HOUSE)
+  status         PropertyStatus  @default(DRAFT)
+  highlight      HighlightStatus @default(NORMAL)
+  categoryId     Int
+  description    String
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  images         PropertyImage[]
+  features       Feature[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@unique([slug, categoryId])
+  @@unique([code, organizationId])
+  @@index([organizationId])
+}
+
+model PropertyImage {
+  id         String   @id @default(cuid())
+  url        String
+  isMain     Boolean  @default(false)
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  propertyId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([propertyId])
+}
+
+model Feature {
+  id         Int        @id @default(autoincrement())
+  name       String
+  properties Property[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+enum PropertyType {
+  APARTMENT
+  COMMERCIAL
+  HOUSE
+  LAND
+  ROOM_RENT
+  SEASON_RENT
+}
+
+enum PropertyStatus {
+  DRAFT
+  ACTIVE
+  INACTIVE
+  UNAVAILABLE
+}
+
+enum HighlightStatus {
+  NORMAL
+  FEATURED
+  MAIN
 }

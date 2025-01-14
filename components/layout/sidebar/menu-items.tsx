@@ -10,36 +10,26 @@ import {
   Settings,
   Shield,
   Users,
+  Building2,
 } from "lucide-react";
 import { MenuItem } from "./types";
-import { Resource } from "@/lib/types/permissions";
-
-interface MenuItemConfig {
-  resource?: Resource;
-  submenu?: {
-    resource?: Resource;
-  }[];
-}
-
-// Configuração de permissões necessárias para cada item do menu
-const menuConfig: Record<string, MenuItemConfig> = {
-  "Equipe": { resource: "team" },
-  "Configurações": {
-    resource: "settings",
-    submenu: [
-      { resource: "settings" }, // Geral
-      { resource: "domains" }, // Domínios
-      { resource: "settings" }, // Planos
-      { resource: "settings" }, // Regras de Acesso
-    ]
-  }
-};
 
 export const createMenuItems = (organizationSlug: string): MenuItem[] => [
   {
     label: "Dashboard",
     icon: LayoutDashboard,
     href: `/app/${organizationSlug}`,
+  },
+  {
+    label: "Imóveis",
+    icon: Building2,
+    submenu: [
+      {
+        label: "Gerenciar",
+        icon: Home,
+        href: `/app/${organizationSlug}/properties`,
+      },
+    ],
   },
   {
     label: "Equipe",

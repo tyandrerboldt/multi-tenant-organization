@@ -1,15 +1,15 @@
 "use server"
 
-import { prisma } from "@/lib/prisma"
-import { OrganizationFormData } from "@/lib/validations/organization"
-import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { Role } from "@prisma/client"
+import { prisma } from "@/lib/prisma"
 import { createStripeCustomer } from "@/lib/stripe"
+import { OrganizationFormData } from "@/lib/validations/organization"
+import { Role } from "@prisma/client"
+import { getServerSession } from "next-auth"
 
 export async function createOrganization(data: OrganizationFormData) {
   const session = await getServerSession(authOptions)
-  
+
   if (!session?.user?.id) {
     throw new Error("Não autorizado")
   }
@@ -47,7 +47,7 @@ export async function createOrganization(data: OrganizationFormData) {
 
 export async function getUserOrganizations() {
   const session = await getServerSession(authOptions)
-  
+
   if (!session?.user?.id) {
     throw new Error("Não autorizado")
   }
@@ -76,4 +76,14 @@ export async function getUserOrganizations() {
   })
 
   return organizations
+}
+
+
+export async function getOrganizationFromSlug(slug: string) {
+  const organization = await prisma.organization.findUnique({
+    where: {
+      slug
+    },
+  })
+  return organization
 }

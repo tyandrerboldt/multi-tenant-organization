@@ -1,19 +1,51 @@
+enum PropertyType {
+  APARTMENT,
+  COMMERCIAL,
+  HOUSE,
+  LAND,
+  ROOM_RENT,
+  SEASON_RENT,
+}
+
+enum Status {
+  DRAFT,
+  ACTIVE,
+  INACTIVE,
+  UNAVAILABLE,
+}
+
+enum HighlightStatus {
+  NORMAL,
+  FEATURED,
+  MAIN,
+}
+
+
 // Interface genérica para cadastro de imóveis
 interface RealEstateProperty {
   id: string;
-  category: number; // Identificador da categoria do imóvel
-  address: {
-    street: string;
-    number: string;
-    complement?: string;
-    neighborhood: string;
-    city: string;
-    state: string;
-    zipcode: string;
-  };
-  features: Record<string, any>; // Características específicas do imóvel
+  code: string;
+  name: string;
+  slug: string;
+  type: PropertyType;
+  status: Status;
+  highlight: HighlightStatus;
+  categoryId: number; // Relacionado a uma categoria pré-cadastrada
+  description: string;
+  address?: Address
+  featuresIds: number[]; // Características específicas do imóvel
   images: string[]; // URLs das imagens do imóvel
 }
+
+interface Address {
+  number: string;
+  zipcode: string;
+  streetId: number;
+  cityId: number; // Relacionado a uma cidade pré-cadastrada
+  stateId: number; // Relacionado a um estado pré-cadastrado
+  neighborhoodId: number; // Relacionado a um bairro pré-cadastrado
+  complement?: string;
+};
 
 // Apartamento
 interface ApartmentProperty extends RealEstateProperty {
@@ -92,6 +124,18 @@ type RealEstatePropertyUnion =
 
 
 // Interface genérica para configurações de anúncios
+
+
+enum OperationType {
+  INSERT = "insert",
+  UPDATE = "update"
+}
+
+enum AdType {
+  SALE = "s",
+  RENT = "u"
+}
+
 interface RealEstateAdConfig {
   id: string;
   operation: "insert" | "update";
