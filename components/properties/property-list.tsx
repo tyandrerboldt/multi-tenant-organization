@@ -219,7 +219,7 @@ export function PropertyList({
                 <TableCell>{property.highlight}</TableCell>
                 <TableCell className="text-right">
                   <Button variant="ghost" size="sm" asChild>
-                    <Link href={`${baseUrl}/${property.id}/edit`}>
+                    <Link href={`${baseUrl}/${property.code}`}>
                       <Pencil className="h-4 w-4" />
                     </Link>
                   </Button>

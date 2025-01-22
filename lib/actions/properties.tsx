@@ -244,6 +244,7 @@ export async function getProperties({
           where: { isMain: true },
           take: 1,
         },
+        PropertyAddress: true
       },
       orderBy: { [sortBy]: sortOrder },
       skip: (page - 1) * limit,
@@ -260,7 +261,7 @@ export async function getProperties({
   };
 }
 
-export async function getProperty(organizationId: string, propertyId: string) {
+export async function getProperty(organizationId: string, propertyCode: string) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
@@ -269,12 +270,25 @@ export async function getProperty(organizationId: string, propertyId: string) {
 
   const property = await prisma.property.findFirst({
     where: {
-      id: propertyId,
+      code: propertyCode,
       organizationId,
     },
     include: {
       images: true,
       features: true,
+      PropertyAddress: {
+        include: {
+          address: {
+            include: {
+              city: true,
+              state: true,
+              neighborhood: true,
+              country: true,
+              street: true,
+            }
+          }
+        }
+      }
     },
   });
 

@@ -159,21 +159,22 @@ model Permission {
 }
 
 model Property {
-  id             String          @id @default(cuid())
-  code           String          @default(nanoid(6))
-  name           String
-  slug           String
-  type           PropertyType    @default(HOUSE)
-  status         PropertyStatus  @default(DRAFT)
-  highlight      HighlightStatus @default(NORMAL)
-  categoryId     Int
-  description    String
-  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId String
-  images         PropertyImage[]
-  features       Feature[]
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  id              String           @id @default(cuid())
+  code            String           @default(nanoid(6))
+  name            String
+  slug            String
+  type            PropertyType     @default(HOUSE)
+  status          PropertyStatus   @default(DRAFT)
+  highlight       HighlightStatus  @default(NORMAL)
+  categoryId      Int
+  description     String
+  organization    Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId  String
+  images          PropertyImage[]
+  features        Feature[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  PropertyAddress PropertyAddress?
 
   @@unique([slug, categoryId])
   @@unique([code, organizationId])
@@ -220,4 +221,106 @@ enum HighlightStatus {
   NORMAL
   FEATURED
   MAIN
+}
+
+model Country {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  code      String    @unique
+  states    State[]
+  addresses Address[]
+
+  @@map("countries")
+}
+
+model State {
+  id        Int       @id @default(autoincrement())
+  name      String
+  code      String
+  country   Country   @relation(fields: [countryId], references: [id])
+  countryId Int       @map("country_id")
+  cities    City[]
+  addresses Address[]
+
+  @@unique([name, countryId])
+  @@unique([code, countryId], name: "code_country_id")
+  @@index([countryId])
+  @@map("states")
+}
+
+model City {
+  id            Int            @id @default(autoincrement())
+  name          String
+  state         State          @relation(fields: [stateId], references: [id])
+  stateId       Int            @map("state_id")
+  neighborhoods Neighborhood[]
+  streets       Street[]
+  addresses     Address[]
+
+  @@unique([name, stateId])
+  @@index([stateId])
+  @@map("cities")
+}
+
+model Neighborhood {
+  id        Int       @id @default(autoincrement())
+  name      String
+  city      City      @relation(fields: [cityId], references: [id])
+  cityId    Int       @map("city_id")
+  addresses Address[]
+
+  @@unique([name, cityId])
+  @@index([cityId])
+  @@map("neighborhoods")
+}
+
+model Street {
+  id        Int       @id @default(autoincrement())
+  name      String
+  city      City      @relation(fields: [cityId], references: [id])
+  cityId    Int       @map("city_id")
+  addresses Address[]
+
+  @@unique([name, cityId])
+  @@index([cityId])
+  @@map("streets")
+}
+
+model Address {
+  id                Int               @id @default(autoincrement())
+  street            Street            @relation(fields: [streetId], references: [id])
+  streetId          Int               @map("street_id")
+  neighborhood      Neighborhood      @relation(fields: [neighborhoodId], references: [id])
+  neighborhoodId    Int               @map("neighborhood_id")
+  city              City              @relation(fields: [cityId], references: [id])
+  cityId            Int               @map("city_id")
+  state             State             @relation(fields: [stateId], references: [id])
+  stateId           Int               @map("state_id")
+  country           Country           @relation(fields: [countryId], references: [id])
+  countryId         Int               @map("country_id")
+  zipcode           String
+  propertyAddresses PropertyAddress[]
+
+  @@unique([streetId, cityId, stateId, countryId])
+  @@index([streetId])
+  @@index([neighborhoodId])
+  @@index([cityId])
+  @@index([stateId])
+  @@index([countryId])
+  @@index([zipcode])
+  @@map("addresses")
+}
+
+model PropertyAddress {
+  id         Int      @id @default(autoincrement())
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  propertyId String   @unique @map("property_id")
+  address    Address  @relation(fields: [addressId], references: [id])
+  addressId  Int      @map("address_id")
+  number     String
+  complement String?
+
+  @@index([propertyId])
+  @@index([addressId])
+  @@map("property_addresses")
 }

@@ -9,7 +9,7 @@ import { getProperty } from "@/lib/actions/properties"
 interface EditPropertyPageProps {
   params: {
     slug: string
-    id: string
+    code: string
   }
 }
 
@@ -35,7 +35,7 @@ export default async function EditPropertyPage({ params }: EditPropertyPageProps
     redirect("/app")
   }
 
-  const property = await getProperty(organization.id, params.id)
+  const property = await getProperty(organization.id, params.code)
 
   return (
     <div className="space-y-6">
