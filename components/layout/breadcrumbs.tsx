@@ -71,7 +71,7 @@ export function Breadcrumbs() {
   const breadcrumbs = generateBreadcrumbs(pathname);
 
   return (
-    <nav className="flex items-center space-x-2 text-sm text-muted-foreground mb-6">
+    <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
       {breadcrumbs.length > 1 &&
         breadcrumbs.map((breadcrumb, index) => (
           <div key={breadcrumb.href} className="flex items-center">

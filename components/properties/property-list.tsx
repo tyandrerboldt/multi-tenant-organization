@@ -19,16 +19,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  PropertyType,
-  Status,
+  highlightStatusLabels,
   propertyTypeLabels,
   statusLabels,
 } from "@/lib/types/properties";
 import { Property } from "@prisma/client";
 import { ArrowUpDown, Pencil } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { Card } from "../ui/card";
 
 interface PropertyListProps {
   properties: (Property & {
@@ -98,7 +99,7 @@ export function PropertyList({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <Card className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between p-4">
         <div className="flex flex-1 gap-4">
           <Input
             placeholder="Buscar imóveis..."
@@ -164,31 +165,31 @@ export function PropertyList({
             }}
           />
         </div>
-      </div>
+      </Card>
 
-      <div className="rounded-md border">
+      <Card className="p-4">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>
+              <TableHead className="px-0">
                 <Button variant="ghost" onClick={() => handleSort("name")}>
                   Nome
                   <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
-              <TableHead>
+              <TableHead className="px-0">
                 <Button variant="ghost" onClick={() => handleSort("type")}>
                   Tipo
                   <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
-              <TableHead>
+              <TableHead className="px-0">
                 <Button variant="ghost" onClick={() => handleSort("status")}>
                   Status
                   <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
-              <TableHead>
+              <TableHead className="px-0">
                 <Button variant="ghost" onClick={() => handleSort("highlight")}>
                   Destaque
                   <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -203,20 +204,22 @@ export function PropertyList({
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-4">
                     {property.images[0] && (
-                      <img
+                      <Image
+                        width={80}
+                        height={40}
                         src={property.images[0].url}
                         alt={property.name}
-                        className="h-10 w-10 rounded-md object-cover"
+                        className="rounded-md object-cover"
                       />
                     )}
                     <span>{property.name}</span>
                   </div>
                 </TableCell>
+                <TableCell>{propertyTypeLabels[property.type]}</TableCell>
+                <TableCell>{statusLabels[property.status]}</TableCell>
                 <TableCell>
-                  {propertyTypeLabels[property.type as PropertyType]}
+                  {highlightStatusLabels[property.highlight]}
                 </TableCell>
-                <TableCell>{statusLabels[property.status as Status]}</TableCell>
-                <TableCell>{property.highlight}</TableCell>
                 <TableCell className="text-right">
                   <Button variant="ghost" size="sm" asChild>
                     <Link href={`${baseUrl}/${property.code}`}>
@@ -236,7 +239,7 @@ export function PropertyList({
             )}
           </TableBody>
         </Table>
-      </div>
+      </Card>
 
       {totalPages > 1 && (
         <div className="flex justify-center gap-2">

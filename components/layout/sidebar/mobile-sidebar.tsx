@@ -25,6 +25,7 @@ export function MobileSidebar({ organizationSlug }: SidebarProps) {
       </SheetTrigger>
       <SheetContent side="left" className="p-0 w-72">
         <SidebarContent 
+          className="bg-white dark:bg-gray-800"
           organizationSlug={organizationSlug} 
           onNavigate={() => setIsOpen(false)}
         />

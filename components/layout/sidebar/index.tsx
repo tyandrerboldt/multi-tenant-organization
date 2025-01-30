@@ -8,7 +8,7 @@ export function Sidebar({ organizationSlug }: SidebarProps) {
   return (
     <>
       <MobileSidebar organizationSlug={organizationSlug} />
-      <div className="hidden lg:block w-64 border-r border-border/40 bg-card/50">
+      <div className="hidden lg:block w-64 border-r bg-card">
         <SidebarContent organizationSlug={organizationSlug} />
       </div>
     </>

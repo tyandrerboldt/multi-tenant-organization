@@ -24,12 +24,12 @@ export default async function AppLayout({
       <div className="flex h-screen">
         <Sidebar />
         <div className="flex flex-col flex-1">
-          <div className="h-14 border-b border-border/40 bg-card/50 flex justify-end items-center px-2">
+          <div className="h-14 border-b bg-card flex justify-end items-center px-2">
             <div className="w-[12rem]">
               <OrganizationSwitcher />
             </div>
           </div>
-          <main className="flex-1 overflow-y-auto">
+          <main className="flex-1 overflow-y-auto bg-gray-100 dark:bg-inherit">
             <div className="container mx-auto p-4 py-6">
               <Breadcrumbs />
               {children}

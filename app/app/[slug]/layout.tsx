@@ -43,15 +43,15 @@ export default async function OrganizationLayout({
       <div className="flex h-screen">
         <Sidebar organizationSlug={params.slug} />
         <div className="flex flex-col flex-1">
-          <div className="h-14 border-b border-border/40 bg-card/50 flex justify-end items-center px-2">
+          <div className="h-14 border-b flex justify-end items-center px-2">
             <div className="w-[12rem]">
               <OrganizationSwitcher currentOrganizationSlug={params.slug} />
             </div>
           </div>
-          <main className="flex-1 overflow-y-auto">
+          <main className="flex-1 overflow-y-auto bg-gray-100 dark:bg-inherit">
             <div className="container mx-auto p-4 py-6">
               <Breadcrumbs />
-              {children}
+              <div className="mt-10">{children}</div>
             </div>
           </main>
         </div>
