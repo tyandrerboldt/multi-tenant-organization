@@ -72,22 +72,23 @@ export function SidebarContent({
 
   return (
     <div className={cn("flex h-full flex-col gap-4", className)}>
-      <div className="px-6 pt-4">
-        {/* <h1 className="font-bold text-3xl">Platform.</h1> */}
+      <div className="p-4">
         <Link href="/" title="Início">
           <div className="w-full">
             <Image
-              width={181}
-              height={50}
+              className="dark:hidden"
+              width={146}
+              height={40}
               src={`/images/logo.png`}
               alt="Logo"
             />
-            {/* <Image
-              width={312}
-              height={96}
-              src={`/images/logo.png`}
+            <Image
+              className="hidden dark:block"
+              width={146}
+              height={40}
+              src={`/images/logo-dark.png`}
               alt="Logo"
-            /> */}
+            />
           </div>
         </Link>
       </div>
