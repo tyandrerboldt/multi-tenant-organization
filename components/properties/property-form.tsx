@@ -36,6 +36,12 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { AddressTab } from "./address-tab";
+import { ApartmentTab } from "./features/apartment-tab";
+import { HouseTab } from "./features/house-tab";
+import { LandTab } from "./features/land-tab";
+import { CommercialTab } from "./features/commercial-tab";
+import { SeasonRentTab } from "./features/season-rent-tab";
+import { RoomRentTab } from "./features/room-rent-tab";
 
 interface PropertyFormProps {
   organizationId: string;
@@ -207,6 +213,7 @@ export function PropertyForm({ organizationId, property }: PropertyFormProps) {
     <Tabs defaultValue="general" className="space-y-6">
       <TabsList>
         <TabsTrigger value="general">Informações Gerais</TabsTrigger>
+        <TabsTrigger value="features">Características</TabsTrigger>
         <TabsTrigger value="images">Imagens</TabsTrigger>
         <TabsTrigger value="address">Endereço</TabsTrigger>
       </TabsList>
@@ -342,6 +349,45 @@ export function PropertyForm({ organizationId, property }: PropertyFormProps) {
             </Button>
           </div>
         </form>
+      </TabsContent>
+
+      <TabsContent value="features">
+        {watch("type") === "APARTMENT" && (
+          <ApartmentTab
+            features={watch("features") || {}}
+            onChange={(features) => setValue("features", features)}
+          />
+        )}
+        {watch("type") === "HOUSE" && (
+          <HouseTab
+            features={watch("features") || {}}
+            onChange={(features) => setValue("features", features)}
+          />
+        )}
+        {watch("type") === "LAND" && (
+          <LandTab
+            features={watch("features") || {}}
+            onChange={(features) => setValue("features", features)}
+          />
+        )}
+        {watch("type") === "COMMERCIAL" && (
+          <CommercialTab
+            features={watch("features") || {}}
+            onChange={(features) => setValue("features", features)}
+          />
+        )}
+        {watch("type") === "SEASON_RENT" && (
+          <SeasonRentTab
+            features={watch("features") || {}}
+            onChange={(features) => setValue("features", features)}
+          />
+        )}
+        {watch("type") === "ROOM_RENT" && (
+          <RoomRentTab
+            features={watch("features") || {}}
+            onChange={(features) => setValue("features", features)}
+          />
+        )}
       </TabsContent>
 
       <TabsContent value="images">

@@ -138,10 +138,10 @@ enum AdType {
 
 interface RealEstateAdConfig {
   id: string;
-  operation: "insert" | "update";
+  operation: OperationType;
   subject: string; // Título do anúncio
   body: string; // Descrição do anúncio
   phone: number; // Contato do anunciante
-  type: "s" | "u"; // "s" para venda, "u" para aluguel
+  type: AdType; // "s" para venda, "u" para aluguel
   price: number; // Preço do imóvel
 }
