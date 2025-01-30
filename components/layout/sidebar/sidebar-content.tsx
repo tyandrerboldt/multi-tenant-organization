@@ -10,6 +10,9 @@ import { createMenuItems } from "./menu-items";
 import { createAppMenuItems } from "./menu-items/app-menu-items";
 import { MenuItem, SidebarProps } from "./types";
 
+import Image from "next/image";
+import Link from "next/link";
+
 interface SidebarContentProps extends SidebarProps {
   className?: string;
   onNavigate?: () => void;
@@ -69,10 +72,26 @@ export function SidebarContent({
 
   return (
     <div className={cn("flex h-full flex-col gap-4", className)}>
-      <div className="px-6 pt-6">
-        <h1 className="font-bold text-3xl">Platform.</h1>
+      <div className="px-6 pt-4">
+        {/* <h1 className="font-bold text-3xl">Platform.</h1> */}
+        <Link href="/" title="Início">
+          <div className="w-full">
+            <Image
+              width={181}
+              height={50}
+              src={`/images/logo.png`}
+              alt="Logo"
+            />
+            {/* <Image
+              width={312}
+              height={96}
+              src={`/images/logo.png`}
+              alt="Logo"
+            /> */}
+          </div>
+        </Link>
       </div>
-      <div className="relative flex-1 overflow-hidden">
+      <div className="mt-4 relative flex-1 overflow-hidden">
         <MenuContent
           items={routes}
           activeMenu={activeMenu}
