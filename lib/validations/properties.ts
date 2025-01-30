@@ -19,6 +19,7 @@ export const propertySchema = z.object({
   highlight: z.nativeEnum(HighlightStatus),
   categoryId: z.number(),
   description: z.string().min(10, "Descrição deve ter pelo menos 10 caracteres"),
+  ownerId: z.string().min(1, "Proprietário é obrigatório"),
   featuresIds: z.array(z.number()),
   features: z.object({}).optional().or(apartmentFeaturesSchema),
   images: z.array(z.object({

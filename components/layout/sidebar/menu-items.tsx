@@ -1,16 +1,15 @@
 "use client";
 
 import {
-  Currency,
+  Building2,
   DollarSign,
   Globe,
   Home,
   LayoutDashboard,
-  Receipt,
   Settings,
   Shield,
   Users,
-  Building2,
+  UserSquare2,
 } from "lucide-react";
 import { MenuItem } from "./types";
 
@@ -28,6 +27,11 @@ export const createMenuItems = (organizationSlug: string): MenuItem[] => [
         label: "Gerenciar",
         icon: Home,
         href: `/app/${organizationSlug}/properties`,
+      },
+      {
+        label: "Proprietários",
+        icon: UserSquare2,
+        href: `/app/${organizationSlug}/properties/owners`,
       },
     ],
   },

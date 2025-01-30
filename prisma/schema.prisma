@@ -85,6 +85,7 @@ model Organization {
   createdAt            DateTime          @default(now())
   updatedAt            DateTime          @updatedAt
   Property             Property[]
+  owners              Owner[]
 }
 
 model Membership {
@@ -170,6 +171,8 @@ model Property {
   description     String
   organization    Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId  String
+  owner          Owner?           @relation(fields: [ownerId], references: [id])
+  ownerId        String?
   images          PropertyImage[]
   features        Feature[]
   createdAt       DateTime         @default(now())
@@ -179,6 +182,7 @@ model Property {
   @@unique([slug, categoryId])
   @@unique([code, organizationId])
   @@index([organizationId])
+  @@index([ownerId])
 }
 
 model PropertyImage {
@@ -199,6 +203,24 @@ model Feature {
   properties Property[]
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
+}
+
+model Owner {
+  id               String       @id @default(cuid())
+  name             String
+  email            String
+  phone            String
+  alternativePhone String?
+  cpf              String?
+  cnpj             String?
+  notes            String?
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId   String
+  properties       Property[]
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@index([organizationId])
 }
 
 enum PropertyType {

@@ -24,10 +24,10 @@ import { showToast } from "@/lib/toast";
 import { AddressData } from "@/lib/types/address";
 import {
   HighlightStatus,
-  highlightStatusLabels,
   PropertyType,
-  propertyTypeLabels,
   Status,
+  highlightStatusLabels,
+  propertyTypeLabels,
   statusLabels,
 } from "@/lib/types/properties";
 import { PropertyFormData, propertySchema } from "@/lib/validations/properties";
@@ -42,6 +42,7 @@ import { LandTab } from "./features/land-tab";
 import { CommercialTab } from "./features/commercial-tab";
 import { SeasonRentTab } from "./features/season-rent-tab";
 import { RoomRentTab } from "./features/room-rent-tab";
+import { OwnerSelect } from "./owner-select";
 
 interface PropertyFormProps {
   organizationId: string;
@@ -74,6 +75,7 @@ export function PropertyForm({ organizationId, property }: PropertyFormProps) {
           highlight: property.highlight,
           categoryId: property.categoryId,
           description: property.description,
+          ownerId: property.ownerId,
           featuresIds: property.features?.map((f: any) => f.id) || [],
         }
       : {
@@ -84,6 +86,9 @@ export function PropertyForm({ organizationId, property }: PropertyFormProps) {
   });
 
   useEffect(() => {
+    console.log("property");
+    console.log(property);
+    
     if (property) {
       const address = property.PropertyAddress;
       if (address) {
@@ -323,6 +328,20 @@ export function PropertyForm({ organizationId, property }: PropertyFormProps) {
               {errors.highlight && (
                 <p className="text-sm text-destructive">
                   {errors.highlight.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Proprietário *</Label>
+              <OwnerSelect
+                organizationId={organizationId}
+                value={watch("ownerId")}
+                onChange={(value) => setValue("ownerId", value)}
+              />
+              {errors.ownerId && (
+                <p className="text-sm text-destructive">
+                  {errors.ownerId.message}
                 </p>
               )}
             </div>
