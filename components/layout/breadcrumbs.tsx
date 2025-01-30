@@ -18,6 +18,7 @@ const translations: Record<string, string> = {
   billing: "Planos",
   roles: "Regras de Acesso",
   properties: "Imóveis",
+  owners: "Proprietários",
 
   // Subpáginas
   new: "Novo",

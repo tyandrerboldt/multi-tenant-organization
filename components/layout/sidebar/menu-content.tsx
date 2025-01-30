@@ -7,9 +7,6 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePermissions } from "@/lib/hooks/use-permissions";
-import { Role } from "@prisma/client";
-import { prisma } from "@/lib/prisma";
-import { useSession } from "next-auth/react";
 
 interface MenuContentProps {
   items: MenuItem[];
@@ -32,9 +29,12 @@ export function MenuContent({
   const { checkPermission } = usePermissions();
 
   const isMenuItemActive = (item: MenuItem): boolean => {
+    
     if (item.href === pathname) return true;
+    
     if (item.submenu) {
-      return item.submenu.some((subItem) => subItem.href === pathname);
+      return item.submenu.some((subItem) => pathname.startsWith(`${subItem.href}`))
+        // return item.submenu.some((subItem) => subItem.href === pathname)
     }
     return false;
   };
