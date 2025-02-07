@@ -40,15 +40,92 @@ export async function createProperty(
       highlight: data.highlight,
       categoryId: data.categoryId,
       description: data.description,
+      ownerId: data.ownerId,
       organizationId,
-      features: {
-        connect: data.featuresIds.map((id) => ({ id })),
-      },
     },
   });
 
   revalidatePath(`/app/${organization.slug}/properties`);
   return { success: true, property };
+}
+
+export async function updatePropertyGeneral(
+  organizationId: string,
+  propertyId: string,
+  data: Partial<PropertyFormData>
+) {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.id) {
+    throw new Error("Não autorizado");
+  }
+
+  const property = await prisma.property.findFirst({
+    where: {
+      id: propertyId,
+      organizationId,
+    },
+  });
+
+  if (!property) {
+    throw new Error("Imóvel não encontrado");
+  }
+
+  const slug = slugify(data.name || property.name, {
+    lower: true,
+    strict: true,
+  });
+
+  if (data.code) {
+    const codeExists = await issetCode(data.code, organizationId, propertyId);
+    if (codeExists) {
+      throw new Error("Esse código já está em uso");
+    }
+  }
+
+  const updatedProperty = await prisma.property.update({
+    where: { id: propertyId },
+    data: {
+      name: data.name,
+      code: data.code,
+      slug,
+      type: data.type,
+      status: data.status,
+      highlight: data.highlight,
+      categoryId: data.categoryId,
+      description: data.description,
+      ownerId: data.ownerId,
+    },
+  });
+
+  const organization = await prisma.organization.findUnique({
+    where: { id: organizationId },
+  });
+
+  revalidatePath(`/app/${organization?.slug}/properties`);
+  return { success: true, property: updatedProperty };
+}
+
+export async function upsertPropertyFeatures(
+  propertyId: string,
+  features: any
+) {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.id) {
+    throw new Error("Não autorizado");
+  }
+
+  const updatedFeature = await prisma.propertyFeature.upsert({
+    where: { propertyId },
+    create: {
+      ...features,
+      propertyId
+    },
+    update: features,
+  });
+
+  return { success: true, property: updatedFeature };
 }
 
 async function uploadImage(
@@ -110,7 +187,7 @@ export async function uploadPropertyImages(formData: FormData) {
 
     // Get existing images before deleting them
     const existingImages = await prisma.propertyImage.findMany({
-      where: { propertyId }
+      where: { propertyId },
     });
 
     // Delete existing images from MinIO
@@ -122,7 +199,7 @@ export async function uploadPropertyImages(formData: FormData) {
 
     // Delete existing images from database
     await prisma.propertyImage.deleteMany({
-      where: { propertyId }
+      where: { propertyId },
     });
 
     // Upload new images
@@ -156,51 +233,6 @@ export async function uploadPropertyImages(formData: FormData) {
     console.error("Error in uploadPropertyImages:", error);
     throw error;
   }
-}
-
-// Add this function to handle property deletion
-export async function deleteProperty(organizationId: string, propertyId: string) {
-  try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id) {
-      throw new Error("Não autorizado");
-    }
-
-    // Get property images before deleting
-    const propertyImages = await prisma.propertyImage.findMany({
-      where: { propertyId }
-    });
-
-    // Delete images from MinIO
-    await Promise.all(
-      propertyImages.map(async (image) => {
-        await deleteImage(image.url);
-      })
-    );
-
-    // Delete property and related data from database
-    await prisma.property.delete({
-      where: { id: propertyId }
-    });
-
-    return { success: true };
-  } catch (error) {
-    console.error("Error deleting property:", error);
-    throw error;
-  }
-}
-
-interface GetPropertiesParams {
-  organizationId: string;
-  page?: number;
-  limit?: number;
-  search?: string;
-  status?: Status;
-  type?: PropertyType;
-  highlight?: HighlightStatus;
-  sortBy?: string;
-  sortOrder?: "asc" | "desc";
 }
 
 export async function getProperties({
@@ -244,7 +276,7 @@ export async function getProperties({
           where: { isMain: true },
           take: 1,
         },
-        PropertyAddress: true
+        PropertyAddress: true,
       },
       orderBy: { [sortBy]: sortOrder },
       skip: (page - 1) * limit,
@@ -261,7 +293,10 @@ export async function getProperties({
   };
 }
 
-export async function getProperty(organizationId: string, propertyCode: string) {
+export async function getProperty(
+  organizationId: string,
+  propertyCode: string
+) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
@@ -273,23 +308,6 @@ export async function getProperty(organizationId: string, propertyCode: string) 
       code: propertyCode,
       organizationId,
     },
-    include: {
-      images: true,
-      features: true,
-      PropertyAddress: {
-        include: {
-          address: {
-            include: {
-              city: true,
-              state: true,
-              neighborhood: true,
-              country: true,
-              street: true,
-            }
-          }
-        }
-      }
-    },
   });
 
   if (!property) {
@@ -297,61 +315,6 @@ export async function getProperty(organizationId: string, propertyCode: string) 
   }
 
   return property;
-}
-
-export async function updateProperty(
-  organizationId: string,
-  propertyId: string,
-  data: Omit<PropertyFormData, "images">
-) {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user?.id) {
-    throw new Error("Não autorizado");
-  }
-
-  const property = await prisma.property.findFirst({
-    where: {
-      id: propertyId,
-      organizationId,
-    },
-  });
-
-  if (!property) {
-    throw new Error("Imóvel não encontrado");
-  }
-
-  const slug = slugify(data.name, { lower: true, strict: true });
-  
-  const codeExists = await issetCode(data.code, organizationId, propertyId)
-  if(codeExists) {
-    throw new Error("Esse código já está em uso")
-  }
-
-  const updatedProperty = await prisma.property.update({
-    where: { id: propertyId },
-    data: {
-      name: data.name,
-      code: data.code,
-      slug,
-      type: data.type,
-      status: data.status,
-      highlight: data.highlight,
-      categoryId: data.categoryId,
-      description: data.description,
-      features: {
-        set: [],
-        connect: data.featuresIds.map((id) => ({ id })),
-      },
-    },
-  });
-
-  const organization = await prisma.organization.findUnique({
-    where: { id: organizationId },
-  });
-
-  revalidatePath(`/app/${organization?.slug}/properties`);
-  return { success: true, property: updatedProperty };
 }
 
 export async function issetCode(
@@ -371,6 +334,19 @@ export async function issetCode(
     });
 
     return existingProperty;
+  } catch (error) {
+    console.error("Error validating code:", error);
+  }
+}
+
+export async function getFeaturesFromPropertyId(propertyId: string) {
+  try {
+    const features = await prisma.propertyFeature.findUnique({
+      where: {
+        propertyId,
+      },
+    });
+    return features;
   } catch (error) {
     console.error("Error validating code:", error);
   }

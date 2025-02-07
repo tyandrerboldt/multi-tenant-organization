@@ -85,7 +85,7 @@ model Organization {
   createdAt            DateTime          @default(now())
   updatedAt            DateTime          @updatedAt
   Property             Property[]
-  owners              Owner[]
+  owners               Owner[]
 }
 
 model Membership {
@@ -171,18 +171,57 @@ model Property {
   description     String
   organization    Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId  String
-  owner          Owner?           @relation(fields: [ownerId], references: [id])
-  ownerId        String?
+  owner           Owner?           @relation(fields: [ownerId], references: [id])
+  ownerId         String?
   images          PropertyImage[]
-  features        Feature[]
+  // features        Feature[]
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   PropertyAddress PropertyAddress?
+  PropertyFeature PropertyFeature?
 
   @@unique([slug, categoryId])
   @@unique([code, organizationId])
   @@index([organizationId])
   @@index([ownerId])
+}
+
+model PropertyFeature {
+  id                      String    @id @default(cuid())
+  property               Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  propertyId             String    @unique
+  // Apartment features
+  rooms                  String?
+  bathrooms              String?
+  garageSpaces          String?   @map("garage_spaces")
+  size                   String?
+  apartmentType         String?   @map("apartment_type")
+  apartmentFeatures     String[]  @map("apartment_features")
+  apartmentComplexFeatures String[] @map("apartment_complex_features")
+  // House features
+  homeType              String?   @map("home_type")
+  homeFeatures          String[]  @map("home_features")
+  homeComplexFeatures   String[]  @map("home_complex_features")
+  // Land features
+  reLandType           String?   @map("re_land_type")
+  reLandFeatures       String[]  @map("re_land_features")
+  // Commercial features
+  commercialType       String?   @map("commercial_type")
+  commercialFeatures   String[]  @map("commercial_features")
+  // Season Rent features
+  beds                  String?
+  rentType             String?   @map("rent_type")
+  seasonType           String?   @map("season_type")
+  seasonFeatures       String[]  @map("season_features")
+  // Room Rent features
+  roomRentFeatures     String[]  @map("room_rent_features")
+  // Common features
+  iptu                  String?
+  condominio            String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([propertyId])
 }
 
 model PropertyImage {
@@ -197,13 +236,13 @@ model PropertyImage {
   @@index([propertyId])
 }
 
-model Feature {
-  id         Int        @id @default(autoincrement())
-  name       String
-  properties Property[]
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-}
+// model Feature {
+//   id         Int        @id @default(autoincrement())
+//   name       String
+//   properties Property[]
+//   createdAt  DateTime   @default(now())
+//   updatedAt  DateTime   @updatedAt
+// }
 
 model Owner {
   id               String       @id @default(cuid())

@@ -16,9 +16,15 @@ interface AddressTabProps {
   defaultValues?: AddressData;
   onSubmit: (data: AddressData) => Promise<void>;
   isSubmitting?: boolean;
+  onStateChange?: (isDirty: boolean) => void;
 }
 
-export function AddressTab({ defaultValues, onSubmit, isSubmitting }: AddressTabProps) {
+export function AddressTab({ 
+  defaultValues, 
+  onSubmit, 
+  isSubmitting,
+  onStateChange 
+}: AddressTabProps) {
   const [isLookingUp, setIsLookingUp] = useState(false);
   const [addressLookup, setAddressLookup] = useState<AddressLookupResult | null>(
     defaultValues
@@ -38,7 +44,8 @@ export function AddressTab({ defaultValues, onSubmit, isSubmitting }: AddressTab
     handleSubmit,
     watch,
     setValue,
-    formState: { errors },
+    formState: { errors, isDirty },
+    reset
   } = useForm<AddressFormData>({
     resolver: zodResolver(addressFormSchema),
     defaultValues: defaultValues
@@ -49,6 +56,28 @@ export function AddressTab({ defaultValues, onSubmit, isSubmitting }: AddressTab
         }
       : undefined,
   });
+
+  useEffect(() => {
+    if (defaultValues) {
+      reset({
+        zipcode: defaultValues.zipcode,
+        number: defaultValues.number,
+        complement: defaultValues.complement,
+      });
+      setAddressLookup({
+        zipcode: defaultValues.zipcode,
+        street: defaultValues.street,
+        neighborhood: defaultValues.neighborhood,
+        city: defaultValues.city,
+        state: defaultValues.state,
+        stateCode: defaultValues.stateCode,
+      });
+    }
+  }, [defaultValues, reset]);
+
+  useEffect(() => {
+    onStateChange?.(isDirty);
+  }, [isDirty, onStateChange]);
 
   const zipcode = watch("zipcode");
 
@@ -168,7 +197,7 @@ export function AddressTab({ defaultValues, onSubmit, isSubmitting }: AddressTab
           </div>
 
           <div className="flex justify-end">
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting || !isDirty}>
               {isSubmitting ? "Salvando..." : "Salvar endereço"}
             </Button>
           </div>
