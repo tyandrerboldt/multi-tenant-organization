@@ -1,8 +1,8 @@
 import { getProperty } from "@/lib/actions/properties";
 import { validateOrganizationFromSlug } from "@/lib/helpers/organization-validation";
 import { redirect } from "next/navigation";
-import { PropertyProvider } from "../_components/property-context";
-import { PropertyFormLayout } from "../_components/property-form-layout";
+import { PropertyFormLayout } from "./_components/property-form-layout";
+import { PropertyProvider } from "../_contexts/property-context";
 
 interface PropertyEditLayoutProps {
   children: React.ReactNode;
@@ -20,7 +20,10 @@ export default async function PropertyEditLayout({
   try {
     const property = await getProperty(organization.id, params.code);
     return (
-      <PropertyProvider initialProperty={property}>
+      <PropertyProvider
+        initialProperty={property}
+        initialOrganization={organization}
+      >
         <PropertyFormLayout
           organizationSlug={params.slug}
           propertyCode={params.code}

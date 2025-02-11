@@ -3,7 +3,7 @@
 import {
   CommercialFeaturesFormData,
   commercialFeaturesSchema,
-} from "@/app/app/[slug]/properties/[code]/features/_schemas";
+} from "@/app/app/[slug]/properties/[code]/features/_schemas/commercial";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -22,7 +22,7 @@ import {
 } from "@/domain/data/property-features";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 interface CommercialTabProps {
@@ -32,7 +32,6 @@ interface CommercialTabProps {
 
 export function CommercialTab({ features, onSubmit }: CommercialTabProps) {
   const router = useRouter();
-  const [showPendingChanges, setShowPendingChanges] = useState(false);
 
   const {
     control,
@@ -44,11 +43,11 @@ export function CommercialTab({ features, onSubmit }: CommercialTabProps) {
     resolver: zodResolver(commercialFeaturesSchema),
     defaultValues: {
       commercialType: features?.commercialType || "",
-      size: features?.size || "",
-      garageSpaces: features?.garageSpaces || "",
+      size: features?.size || 0,
+      garageSpaces: features?.garageSpaces || 0,
       commercialFeatures: features?.commercialFeatures || [],
-      iptu: features?.iptu || "",
-      condominio: features?.condominio || "",
+      iptu: features?.iptu || 0,
+      condominio: features?.condominio || 0,
     },
   });
 
@@ -104,23 +103,10 @@ export function CommercialTab({ features, onSubmit }: CommercialTabProps) {
 
           <div className="space-y-2">
             <Label>Vagas de Garagem</Label>
-            <Controller
-              name="garageSpaces"
-              control={control}
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a quantidade" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {GARAGE_OPTIONS.map(({ value, label }) => (
-                      <SelectItem key={value} value={value}>
-                        {label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
+            <Input
+              type="number"
+              {...register("garageSpaces")}
+              placeholder="1"
             />
             {errors.garageSpaces && (
               <p className="text-sm text-destructive">

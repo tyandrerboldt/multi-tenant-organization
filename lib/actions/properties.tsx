@@ -10,6 +10,19 @@ import { revalidatePath } from "next/cache";
 import slugify from "slugify";
 import { PropertyFormData } from "../validations/properties";
 
+type GetPropertiesParams = {
+  organizationId: string;
+  page: number;
+  limit: number;
+  search: string;
+  status: string;
+  type: string;
+  highlight: string;
+  ownerId: string;
+  sortBy: string;
+  sortOrder: string;
+};
+
 export async function createProperty(
   organizationId: string,
   data: Omit<PropertyFormData, "images">
@@ -95,6 +108,11 @@ export async function updatePropertyGeneral(
       categoryId: data.categoryId,
       description: data.description,
       ownerId: data.ownerId,
+      saleValue: data.saleValue,
+      rentalValue: data.rentalValue,
+      enableSale: data.enableSale,
+      enableRent: data.enableRent,
+      situation: data.situation,
     },
   });
 
@@ -103,7 +121,11 @@ export async function updatePropertyGeneral(
   });
 
   revalidatePath(`/app/${organization?.slug}/properties`);
-  return { success: true, property: updatedProperty };
+  return { success: true, property: {
+    ...updatedProperty,
+    saleValue: Number(updatedProperty.saleValue),
+    rentalValue: Number(updatedProperty.rentalValue),
+  } };
 }
 
 export async function upsertPropertyFeatures(
@@ -116,16 +138,16 @@ export async function upsertPropertyFeatures(
     throw new Error("Não autorizado");
   }
 
-  const updatedFeature = await prisma.propertyFeature.upsert({
+  await prisma.propertyFeature.upsert({
     where: { propertyId },
     create: {
       ...features,
-      propertyId
+      propertyId,
     },
     update: features,
   });
 
-  return { success: true, property: updatedFeature };
+  return { success: true };
 }
 
 async function uploadImage(
@@ -243,6 +265,7 @@ export async function getProperties({
   status,
   type,
   highlight,
+  ownerId,
   sortBy = "createdAt",
   sortOrder = "desc",
 }: GetPropertiesParams) {
@@ -254,6 +277,7 @@ export async function getProperties({
 
   const where = {
     organizationId,
+    ownerId,
     ...(search
       ? {
           OR: [
@@ -308,13 +332,48 @@ export async function getProperty(
       code: propertyCode,
       organizationId,
     },
+    include: {
+      PropertyAddress: {
+        include: {
+          address: {
+            include: {
+              city: true,
+              country: true,
+              neighborhood: true,
+              state: true,
+              street: true,
+            },
+          },
+        },
+      },
+      images: true,
+    },
   });
 
   if (!property) {
     throw new Error("Imóvel não encontrado");
   }
 
-  return property;
+  const address = {
+    zipcode: property.PropertyAddress?.address.zipcode,
+    street: property.PropertyAddress?.address.street.name,
+    neighborhood: property.PropertyAddress?.address.neighborhood.name,
+    city: property.PropertyAddress?.address.city.name,
+    state: property.PropertyAddress?.address.state.name,
+    stateCode: property.PropertyAddress?.address.state.code,
+    number: property.PropertyAddress?.number,
+    complement: property.PropertyAddress?.complement,
+  };
+
+  return {
+    ...property,
+    rentalValue: Number(property.rentalValue),
+    saleValue: Number(property.saleValue),
+    PropertyAddress: {
+      ...address,
+      //TODO: Add other attr
+    },
+  };
 }
 
 export async function issetCode(
@@ -346,8 +405,63 @@ export async function getFeaturesFromPropertyId(propertyId: string) {
         propertyId,
       },
     });
-    return features;
+    return {
+      ...features,
+      condominio: Number(features?.condominio),
+      iptu: Number(features?.iptu),
+      size: Number(features?.size),
+      totalSize: Number(features?.totalSize),
+      beds: Number(features?.beds),
+      bathrooms: Number(features?.bathrooms),
+      suites: Number(features?.suites),
+      garageSpaces: Number(features?.garageSpaces),
+      rooms: Number(features?.rooms),
+    };
   } catch (error) {
     console.error("Error validating code:", error);
+  }
+}
+
+
+export async function deleteProperty(organizationId: string, propertyId: string) {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user) {
+    throw new Error("Não autorizado");
+  }
+
+  const property = await prisma.property.findFirst({
+    where: {
+      id: propertyId,
+      organizationId,
+    },
+    include: {
+      images: true,
+      organization: true,
+    },
+  });
+
+  if (!property) {
+    throw new Error("Imóvel não encontrado");
+  }
+
+  try {
+    // Delete images from storage
+    await Promise.all(
+      property.images.map(async (image) => {
+        await deleteImage(image.url);
+      })
+    );
+
+    // Delete property and all related data
+    await prisma.property.delete({
+      where: { id: propertyId },
+    });
+
+    revalidatePath(`/app/${property.organization.slug}/properties`);
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting property:", error);
+    throw new Error("Falha ao excluir imóvel");
   }
 }

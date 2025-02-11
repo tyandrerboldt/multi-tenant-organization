@@ -21,6 +21,22 @@ export enum HighlightStatus {
   MAIN = "MAIN",
 }
 
+export enum PropertySituation {
+  NEW = "NEW",
+  EXCELLENT = "EXCELLENT",
+  GOOD = "GOOD",
+  NEEDS_RENOVATION = "NEEDS_RENOVATION",
+  LAUNCH = "LAUNCH"
+}
+
+export const propertySituationLabels: Record<PropertySituation, string> = {
+  [PropertySituation.NEW]: "Novo",
+  [PropertySituation.EXCELLENT]: "Excelente",
+  [PropertySituation.GOOD]: "Bom",
+  [PropertySituation.NEEDS_RENOVATION]: "Precisa de reforma",
+  [PropertySituation.LAUNCH]: "Lançamento",
+}
+
 export const propertyTypeLabels: Record<PropertyType, string> = {
   [PropertyType.APARTMENT]: "Apartamento",
   [PropertyType.COMMERCIAL]: "Comércio e indústria",

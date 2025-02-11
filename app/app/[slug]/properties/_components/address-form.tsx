@@ -4,17 +4,13 @@ import { AddressTab } from "@/components/properties/address-tab";
 import { createOrUpdatePropertyAddress } from "@/lib/actions/address";
 import { showToast } from "@/lib/toast";
 import { AddressData } from "@/lib/types/address";
-import { useEffect, useState } from "react";
-import { useProperty } from "./property-context";
+import { useState } from "react";
+import { useProperty } from "../_contexts/property-context";
 
 export function AddressForm() {
-  const { property, setIsDirty } = useProperty();
+  const { property } = useProperty();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDirty, setFormIsDirty] = useState(false);
-
-  useEffect(() => {
-    setIsDirty(isDirty);
-  }, [isDirty, setIsDirty]);
 
   const handleSubmit = async (data: AddressData) => {
     if (!property) {

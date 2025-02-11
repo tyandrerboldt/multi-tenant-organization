@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowUpDown, Pencil, Trash2 } from "lucide-react";
+import { ArrowUpDown, Building2, Pencil, Trash2, User2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -103,6 +103,20 @@ export function OwnerList({
     }
   };
 
+  const formatPhone = (phone: string) => {
+    const cleaned = phone.replace(/\D/g, "");
+    const match = cleaned.match(/^(\d{2})(\d{5})(\d{4})$/);
+    if (match) {
+      return `(${match[1]}) ${match[2]}-${match[3]}`;
+    }
+    return phone;
+  };
+
+  const getPropertiesLink = (owner: Owner) => {
+    const basePropertyUrl = baseUrl.replace("/owners", "");
+    return `${basePropertyUrl}?ownerId=${owner.id}`;
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -136,10 +150,25 @@ export function OwnerList({
           <TableBody>
             {owners.map((owner) => (
               <TableRow key={owner.id}>
-                <TableCell className="font-medium">{owner.name}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-md bg-muted flex items-center justify-center">
+                      <User2 className="h-5 w-5" />
+                    </div>
+                    <span className="font-medium">{owner.name}</span>
+                  </div>
+                </TableCell>
                 <TableCell>{owner.email}</TableCell>
-                <TableCell>{owner.phone}</TableCell>
-                <TableCell>{owner._count.properties}</TableCell>
+                <TableCell>{formatPhone(owner.phone)}</TableCell>
+                <TableCell>
+                  <Link
+                    href={getPropertiesLink(owner)}
+                    className="flex items-center gap-2 text-primary hover:underline"
+                  >
+                    <Building2 className="h-4 w-4" />
+                    {owner._count.properties} imóveis
+                  </Link>
+                </TableCell>
                 <TableCell className="text-right space-x-2">
                   <Button variant="ghost" size="sm" asChild>
                     <Link href={`${baseUrl}/${owner.id}`}>
@@ -191,8 +220,8 @@ export function OwnerList({
           <AlertDialogHeader>
             <AlertDialogTitle>Remover proprietário</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja remover este proprietário? Esta ação não pode
-              ser desfeita.
+              Tem certeza que deseja remover este proprietário? Esta ação não
+              pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

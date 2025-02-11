@@ -46,10 +46,13 @@ export default async function OwnersPage({
     redirect("/app");
   }
 
-  const { owners, totalPages, currentPage, total } = await getOwners(
-    organization.id,
-    searchParams.page ? parseInt(searchParams.page) : 1
-  );
+  const { owners, totalPages, currentPage, total } = await getOwners({
+    organizationId: organization.id,
+    page: searchParams.page ? parseInt(searchParams.page) : 1,
+    search: searchParams.search,
+    sortBy: searchParams.sortBy,
+    sortOrder: searchParams.sortOrder,
+  });
 
   return (
     <div className="space-y-6">

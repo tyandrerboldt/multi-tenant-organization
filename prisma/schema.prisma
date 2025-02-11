@@ -180,6 +180,13 @@ model Property {
   PropertyAddress PropertyAddress?
   PropertyFeature PropertyFeature?
 
+  situation   PropertySituation?
+
+  enableRent  Boolean            @default(false)
+  enableSale  Boolean            @default(false)
+  rentalValue Decimal?
+  saleValue   Decimal?
+
   @@unique([slug, categoryId])
   @@unique([code, organizationId])
   @@index([organizationId])
@@ -187,39 +194,43 @@ model Property {
 }
 
 model PropertyFeature {
-  id                      String    @id @default(cuid())
-  property               Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  propertyId             String    @unique
+  id                       String   @id @default(cuid())
+  property                 Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  propertyId               String   @unique
   // Apartment features
-  rooms                  String?
-  bathrooms              String?
-  garageSpaces          String?   @map("garage_spaces")
-  size                   String?
-  apartmentType         String?   @map("apartment_type")
-  apartmentFeatures     String[]  @map("apartment_features")
+  rooms                    Int?
+  bathrooms                Int?
+  garageSpaces             Int?     @map("garage_spaces")
+  apartmentType            String?  @map("apartment_type")
+  apartmentFeatures        String[] @map("apartment_features")
   apartmentComplexFeatures String[] @map("apartment_complex_features")
   // House features
-  homeType              String?   @map("home_type")
-  homeFeatures          String[]  @map("home_features")
-  homeComplexFeatures   String[]  @map("home_complex_features")
+  homeType                 String?  @map("home_type")
+  homeFeatures             String[] @map("home_features")
+  homeComplexFeatures      String[] @map("home_complex_features")
   // Land features
-  reLandType           String?   @map("re_land_type")
-  reLandFeatures       String[]  @map("re_land_features")
+  reLandType               String?  @map("re_land_type")
+  reLandFeatures           String[] @map("re_land_features")
   // Commercial features
-  commercialType       String?   @map("commercial_type")
-  commercialFeatures   String[]  @map("commercial_features")
+  commercialType           String?  @map("commercial_type")
+  commercialFeatures       String[] @map("commercial_features")
   // Season Rent features
-  beds                  String?
-  rentType             String?   @map("rent_type")
-  seasonType           String?   @map("season_type")
-  seasonFeatures       String[]  @map("season_features")
+  beds                     Int?
+  rentType                 String?  @map("rent_type")
+  seasonType               String?  @map("season_type")
+  seasonFeatures           String[] @map("season_features")
   // Room Rent features
-  roomRentFeatures     String[]  @map("room_rent_features")
+  roomRentFeatures         String[] @map("room_rent_features")
   // Common features
-  iptu                  String?
-  condominio            String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+  iptu                     Decimal?
+  condominio               Decimal?
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  size       Decimal? @map("size")
+  totalSize  Decimal? @map("total_size")
+  suites     Int?
+  complement String?
 
   @@index([propertyId])
 }
@@ -282,6 +293,14 @@ enum HighlightStatus {
   NORMAL
   FEATURED
   MAIN
+}
+
+enum PropertySituation {
+  NEW
+  EXCELLENT
+  GOOD
+  NEEDS_RENOVATION
+  LAUNCH
 }
 
 model Country {

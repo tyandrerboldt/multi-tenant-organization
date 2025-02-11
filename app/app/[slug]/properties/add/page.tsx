@@ -1,11 +1,10 @@
 import { Card } from "@/components/ui/card";
-import { PropertyProvider } from "../_components/property-context";
-import { PropertyFormLayout } from "../_components/property-form-layout";
-import { GeneralForm } from "../_components/general-form";
-import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
+import { PropertyFormLayout } from "../[code]/_components/property-form-layout";
+import { GeneralForm } from "../_components/general-form";
 
 interface AddPropertyPageProps {
   params: {
@@ -13,7 +12,9 @@ interface AddPropertyPageProps {
   };
 }
 
-export default async function AddPropertyPage({ params }: AddPropertyPageProps) {
+export default async function AddPropertyPage({
+  params,
+}: AddPropertyPageProps) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user) {
@@ -36,15 +37,13 @@ export default async function AddPropertyPage({ params }: AddPropertyPageProps) 
   }
 
   return (
-    <PropertyProvider>
-      <PropertyFormLayout organizationSlug={params.slug}>
-        <Card className="p-6">
-          <GeneralForm 
-            organizationId={organization.id}
-            organizationSlug={params.slug}
-          />
-        </Card>
-      </PropertyFormLayout>
-    </PropertyProvider>
+    <PropertyFormLayout organizationSlug={params.slug}>
+      <Card className="p-6">
+        <GeneralForm
+          organizationId={organization.id}
+          organizationSlug={params.slug}
+        />
+      </Card>
+    </PropertyFormLayout>
   );
 }

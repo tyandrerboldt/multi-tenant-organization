@@ -1,9 +1,8 @@
+"use client"
+
 import { Card } from "@/components/ui/card";
 import { GeneralForm } from "../_components/general-form";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { redirect } from "next/navigation";
+import { useProperty } from "../_contexts/property-context";
 
 interface EditPropertyPageProps {
   params: {
@@ -12,31 +11,14 @@ interface EditPropertyPageProps {
   };
 }
 
-export default async function EditPropertyPage({ params }: EditPropertyPageProps) {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user) {
-    redirect("/login");
-  }
-
-  const organization = await prisma.organization.findFirst({
-    where: {
-      slug: params.slug,
-      memberships: {
-        some: {
-          userId: session.user.id,
-        },
-      },
-    },
-  });
-
-  if (!organization) {
-    redirect("/app");
-  }
+export default function EditPropertyPage({ params }: EditPropertyPageProps) {
+  const { property, setProperty, organization } = useProperty()
 
   return (
     <Card className="p-6">
       <GeneralForm 
+        initialData={property}
+        onPropertyChange={setProperty}
         organizationId={organization.id}
         organizationSlug={params.slug}
       />

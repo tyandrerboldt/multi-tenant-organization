@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { FeaturesForm } from "../../_components/features-form";
+import { FeaturesForm } from "./_components/features-form";
 
 
 export default async function FeaturesPage() {

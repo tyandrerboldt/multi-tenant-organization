@@ -1,12 +1,10 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+import { OwnerSelect } from "@/components/properties/owner-select";
+import { PendingChangesDialog } from "@/components/shared/pending-changes-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -14,63 +12,108 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { OwnerSelect } from "@/components/properties/owner-select";
-import { useProperty } from "./property-context";
-import { PropertyFormData, propertySchema } from "@/lib/validations/properties";
-import { createProperty, updatePropertyGeneral } from "@/lib/actions/properties";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  createProperty,
+  updatePropertyGeneral,
+} from "@/lib/actions/properties";
 import { showToast } from "@/lib/toast";
-import { HighlightStatus, PropertyType, Status, highlightStatusLabels, propertyTypeLabels, statusLabels } from "@/lib/types/properties";
-import { useEffect } from "react";
+import {
+  HighlightStatus,
+  PropertySituation,
+  PropertyType,
+  Status,
+  highlightStatusLabels,
+  propertySituationLabels,
+  propertyTypeLabels,
+  statusLabels,
+} from "@/lib/types/properties";
+import { PropertyFormData, propertySchema } from "@/lib/validations/properties";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Property } from "@prisma/client";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 
 interface GeneralFormProps {
   organizationId: string;
   organizationSlug: string;
+  initialData?: Property;
+  onPropertyChange?: (data: Property) => void;
 }
 
-export function GeneralForm({ organizationId, organizationSlug }: GeneralFormProps) {
+export function GeneralForm({
+  organizationId,
+  organizationSlug,
+  initialData,
+  onPropertyChange,
+}: GeneralFormProps) {
   const router = useRouter();
-  const { property, setProperty, setIsDirty } = useProperty();
+  const [showPendingChanges, setShowPendingChanges] = useState(false);
+  const [pendingPath, setPendingPath] = useState<string | null>(null);
+  const [property, setProperty] = useState<Property | undefined>(initialData);
 
   const {
     register,
     handleSubmit,
-    watch,
-    setValue,
-    reset,
+    control,
     formState: { errors, isDirty, isSubmitting },
+    reset,
   } = useForm<PropertyFormData>({
     resolver: zodResolver(propertySchema),
-    defaultValues: property || undefined,
+    defaultValues: {
+      code: property?.code || "",
+      name: property?.name || "",
+      type: property?.type || PropertyType.HOUSE,
+      status: property?.status || Status.DRAFT,
+      highlight: property?.highlight || HighlightStatus.NORMAL,
+      situation: property?.situation || PropertySituation.GOOD,
+      description: property?.description || "",
+      ownerId: property?.ownerId || "",
+      categoryId: property?.categoryId || 1,
+      saleValue: Number(property?.saleValue) || 0,
+      rentalValue: Number(property?.rentalValue) || 0,
+      enableRent: property?.enableRent || false,
+      enableSale: property?.enableSale || false,
+    },
   });
 
-  // Update isDirty in context when form state changes
-  useEffect(() => {
-    setIsDirty(isDirty);
-  }, [isDirty, setIsDirty]);
-
-  // Reset form when property changes
   useEffect(() => {
     if (property) {
       reset(property);
     }
   }, [property, reset]);
 
+  const handleConfirmNavigation = () => {
+    setShowPendingChanges(false);
+    if (pendingPath) {
+      router.push(pendingPath);
+      setPendingPath(null);
+    }
+  };
+
   const onSubmit = async (data: PropertyFormData) => {
     try {
       if (property) {
-        // Update existing property
-        const result = await updatePropertyGeneral(organizationId, property.id, data);
+        const result = await updatePropertyGeneral(
+          organizationId,
+          property.id,
+          data
+        );
         if (result.success) {
           setProperty(result.property);
+          onPropertyChange && onPropertyChange(result.property);
           showToast("Imóvel atualizado com sucesso", { variant: "success" });
-          setIsDirty(false);
+          reset(data);
         }
       } else {
-        // Create new property
         const result = await createProperty(organizationId, data);
         if (result.success) {
           showToast("Imóvel criado com sucesso", { variant: "success" });
-          router.push(`/app/${organizationSlug}/properties/${result.property.code}`);
+          router.push(
+            `/app/${organizationSlug}/properties/${result.property.code}`
+          );
         }
       }
     } catch (error) {
@@ -82,149 +125,255 @@ export function GeneralForm({ organizationId, organizationSlug }: GeneralFormPro
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <Label htmlFor="code">Código</Label>
-          <Input
-            id="code"
-            {...register("code")}
-            placeholder="Código do imóvel"
-          />
-          {errors.code && (
-            <p className="text-sm text-destructive">
-              {errors.code.message}
-            </p>
-          )}
-        </div>
+    <>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <Label htmlFor="code">Código</Label>
+            <Input
+              id="code"
+              {...register("code")}
+              placeholder="Código do imóvel"
+            />
+            {errors.code && (
+              <p className="text-sm text-destructive">{errors.code.message}</p>
+            )}
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="name">Nome</Label>
-          <Input
-            id="name"
-            {...register("name")}
-            placeholder="Nome do imóvel"
-          />
-          {errors.name && (
-            <p className="text-sm text-destructive">
-              {errors.name.message}
-            </p>
-          )}
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="name">Nome</Label>
+            <Input
+              id="name"
+              {...register("name")}
+              placeholder="Nome do imóvel"
+            />
+            {errors.name && (
+              <p className="text-sm text-destructive">{errors.name.message}</p>
+            )}
+          </div>
 
-        <div className="space-y-2">
-          <Label>Tipo</Label>
-          <Select
-            onValueChange={(value) =>
-              setValue("type", value as PropertyType)
-            }
-            defaultValue={watch("type")}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Selecione o tipo" />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(propertyTypeLabels).map(([value, label]) => (
-                <SelectItem key={value} value={value}>
-                  {label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.type && (
-            <p className="text-sm text-destructive">
-              {errors.type.message}
-            </p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <Label>Status</Label>
-          <Select
-            onValueChange={(value) => setValue("status", value as Status)}
-            defaultValue={watch("status")}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Selecione o status" />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(statusLabels).map(([value, label]) => (
-                <SelectItem key={value} value={value}>
-                  {label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.status && (
-            <p className="text-sm text-destructive">
-              {errors.status.message}
-            </p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <Label>Destaque</Label>
-          <Select
-            onValueChange={(value) =>
-              setValue("highlight", value as HighlightStatus)
-            }
-            defaultValue={watch("highlight")}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Selecione o destaque" />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(highlightStatusLabels).map(
-                ([value, label]) => (
-                  <SelectItem key={value} value={value}>
-                    {label}
-                  </SelectItem>
-                )
+          <div className="space-y-2">
+            <Label>Tipo</Label>
+            <Controller
+              name="type"
+              control={control}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(propertyTypeLabels).map(
+                      ([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      )
+                    )}
+                  </SelectContent>
+                </Select>
               )}
-            </SelectContent>
-          </Select>
-          {errors.highlight && (
-            <p className="text-sm text-destructive">
-              {errors.highlight.message}
-            </p>
-          )}
+            />
+            {errors.type && (
+              <p className="text-sm text-destructive">{errors.type.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label>Status</Label>
+            <Controller
+              name="status"
+              control={control}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(statusLabels).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.status && (
+              <p className="text-sm text-destructive">
+                {errors.status.message}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label>Situação</Label>
+            <Controller
+              name="situation"
+              control={control}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a situação" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(propertySituationLabels).map(
+                      ([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      )
+                    )}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.status && (
+              <p className="text-sm text-destructive">
+                {errors.status.message}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label>Destaque</Label>
+            <Controller
+              name="highlight"
+              control={control}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o destaque" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(highlightStatusLabels).map(
+                      ([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      )
+                    )}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.highlight && (
+              <p className="text-sm text-destructive">
+                {errors.highlight.message}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label>Habilitar venda</Label>
+            <div className="flex items-center space-x-2">
+              <Controller
+                name="enableSale"
+                control={control}
+                render={({ field }) => (
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                )}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Habilitar locação</Label>
+            <div className="flex items-center space-x-2">
+              <Controller
+                name="enableRent"
+                control={control}
+                render={({ field }) => (
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                )}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Valor da Venda (R$)</Label>
+            <Input
+              type="number"
+              {...register("saleValue")}
+              placeholder="0.00"
+              step="0.01"
+            />
+            {errors.saleValue && (
+              <p className="text-sm text-destructive">
+                {errors.saleValue.message}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label>Valor da Locação (R$)</Label>
+            <Input
+              type="number"
+              {...register("rentalValue")}
+              placeholder="0.00"
+              step="0.01"
+            />
+            {errors.rentalValue && (
+              <p className="text-sm text-destructive">
+                {errors.rentalValue.message}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label>Proprietário</Label>
+            <Controller
+              name="ownerId"
+              control={control}
+              render={({ field }) => (
+                <OwnerSelect
+                  organizationId={organizationId}
+                  value={field.value}
+                  onChange={(val) => field.onChange(val)}
+                />
+              )}
+            />
+            {errors.ownerId && (
+              <p className="text-sm text-destructive">
+                {errors.ownerId.message}
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="space-y-2">
-          <Label>Proprietário *</Label>
-          <OwnerSelect
-            organizationId={organizationId}
-            value={watch("ownerId")}
-            onChange={(value) => setValue("ownerId", value)}
+          <Label htmlFor="description">Descrição</Label>
+          <Textarea
+            id="description"
+            {...register("description")}
+            placeholder="Descreva o imóvel"
+            className="min-h-[150px]"
           />
-          {errors.ownerId && (
+          {errors.description && (
             <p className="text-sm text-destructive">
-              {errors.ownerId.message}
+              {errors.description.message}
             </p>
           )}
         </div>
-      </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="description">Descrição</Label>
-        <Textarea
-          id="description"
-          {...register("description")}
-          placeholder="Descreva o imóvel"
-          className="min-h-[150px]"
-        />
-        {errors.description && (
-          <p className="text-sm text-destructive">
-            {errors.description.message}
-          </p>
-        )}
-      </div>
+        <div className="flex justify-end">
+          <Button type="submit" disabled={isSubmitting || !isDirty}>
+            {isSubmitting ? "Salvando..." : "Salvar"}
+          </Button>
+        </div>
+      </form>
 
-      <div className="flex justify-end">
-        <Button type="submit" disabled={isSubmitting || !isDirty}>
-          {isSubmitting ? "Salvando..." : "Salvar"}
-        </Button>
-      </div>
-    </form>
+      <PendingChangesDialog
+        open={showPendingChanges}
+        onClose={() => setShowPendingChanges(false)}
+        onConfirm={handleConfirmNavigation}
+      />
+    </>
   );
 }

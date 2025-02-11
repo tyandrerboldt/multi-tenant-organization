@@ -23,8 +23,6 @@ import { getOwner, searchOwners } from "@/lib/actions/owners";
 interface Owner {
   id: string;
   name: string;
-  phone: string;
-  email: string;
 }
 
 interface OwnerSelectProps {
@@ -52,6 +50,9 @@ export function OwnerSelect({ organizationId, value, onChange }: OwnerSelectProp
         } catch (error) {
           console.error("Error loading owner:", error);
         }
+      } else {
+        // Clear selected owner when value is empty/null
+        setSelectedOwner(undefined);
       }
     };
 
@@ -77,22 +78,41 @@ export function OwnerSelect({ organizationId, value, onChange }: OwnerSelectProp
   };
 
   const handleSelect = (owner: Owner) => {
-    onChange(owner.id);
     setSelectedOwner(owner);
+    onChange(owner.id); // Trigger form change
     setOpen(false);
     setSearch("");
     setOwners([]);
   };
 
+  const handleClear = () => {
+    setSelectedOwner(undefined);
+    onChange(""); // Trigger form change with empty value
+  };
+
   return (
     <div className="flex gap-2">
-      <Input
-        value={selectedOwner?.name || ""}
-        placeholder="Selecione um proprietário"
-        readOnly
-        className="flex-1"
-      />
+      <div className="relative flex-1">
+        <Input
+          value={selectedOwner?.name || ""}
+          placeholder="Selecione um proprietário"
+          readOnly
+          className="pr-24" // Space for clear button
+        />
+        {selectedOwner && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="absolute right-1 top-1/2 -translate-y-1/2"
+            onClick={handleClear}
+          >
+            Limpar
+          </Button>
+        )}
+      </div>
       <Button
+        type="button"
         variant="outline"
         onClick={() => setOpen(true)}
       >
@@ -117,8 +137,6 @@ export function OwnerSelect({ organizationId, value, onChange }: OwnerSelectProp
                 <TableHeader>
                   <TableRow>
                     <TableHead>Nome</TableHead>
-                    <TableHead>E-mail</TableHead>
-                    <TableHead>Contato</TableHead>
                     <TableHead className="w-[100px]"></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -142,8 +160,6 @@ export function OwnerSelect({ organizationId, value, onChange }: OwnerSelectProp
                     owners.map((owner) => (
                       <TableRow key={owner.id}>
                         <TableCell>{owner.name}</TableCell>
-                        <TableCell>{owner.email}</TableCell>
-                        <TableCell>{owner.phone}</TableCell>
                         <TableCell className="text-right">
                           <Button
                             variant="ghost"

@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { OwnerFormData, ownerSchema } from "@/lib/validations/owner";
 import { createOwner, updateOwner } from "@/lib/actions/owners";
 import { showToast } from "@/lib/toast";
+import { useEffect } from "react";
 
 interface OwnerFormProps {
   organizationId: string;
@@ -31,19 +32,80 @@ export function OwnerForm({ organizationId, owner }: OwnerFormProps) {
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<OwnerFormData>({
     resolver: zodResolver(ownerSchema),
     defaultValues: owner || {},
   });
 
+  // Watch fields for mask application
+  const phone = watch("phone");
+  const alternativePhone = watch("alternativePhone");
+  const cpf = watch("cpf");
+  const cnpj = watch("cnpj");
+
+  // Apply masks
+  useEffect(() => {
+    if (phone) {
+      const cleaned = phone.replace(/\D/g, "");
+      const match = cleaned.match(/^(\d{2})(\d{5})(\d{4})$/);
+      if (match) {
+        setValue("phone", `(${match[1]}) ${match[2]}-${match[3]}`);
+      }
+    }
+  }, [phone, setValue]);
+
+  useEffect(() => {
+    if (alternativePhone) {
+      const cleaned = alternativePhone.replace(/\D/g, "");
+      const match = cleaned.match(/^(\d{2})(\d{5})(\d{4})$/);
+      if (match) {
+        setValue("alternativePhone", `(${match[1]}) ${match[2]}-${match[3]}`);
+      }
+    }
+  }, [alternativePhone, setValue]);
+
+  useEffect(() => {
+    if (cpf) {
+      const cleaned = cpf.replace(/\D/g, "");
+      const match = cleaned.match(/^(\d{3})(\d{3})(\d{3})(\d{2})$/);
+      if (match) {
+        setValue("cpf", `${match[1]}.${match[2]}.${match[3]}-${match[4]}`);
+      }
+    }
+  }, [cpf, setValue]);
+
+  useEffect(() => {
+    if (cnpj) {
+      const cleaned = cnpj.replace(/\D/g, "");
+      const match = cleaned.match(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/);
+      if (match) {
+        setValue(
+          "cnpj",
+          `${match[1]}.${match[2]}.${match[3]}/${match[4]}-${match[5]}`
+        );
+      }
+    }
+  }, [cnpj, setValue]);
+
   const onSubmit = async (data: OwnerFormData) => {
     try {
+      // Clean up formatted values before submission
+      const cleanedData = {
+        ...data,
+        phone: data.phone.replace(/\D/g, ""),
+        alternativePhone: data.alternativePhone?.replace(/\D/g, ""),
+        cpf: data.cpf?.replace(/\D/g, ""),
+        cnpj: data.cnpj?.replace(/\D/g, ""),
+      };
+
       if (owner) {
-        await updateOwner(organizationId, owner.id, data);
+        await updateOwner(organizationId, owner.id, cleanedData);
         showToast("Proprietário atualizado com sucesso", { variant: "success" });
       } else {
-        await createOwner(organizationId, data);
+        await createOwner(organizationId, cleanedData);
         showToast("Proprietário criado com sucesso", { variant: "success" });
       }
       router.push(`/app/${organizationId}/properties/owners`);
@@ -90,6 +152,7 @@ export function OwnerForm({ organizationId, owner }: OwnerFormProps) {
             id="phone"
             {...register("phone")}
             placeholder="(00) 00000-0000"
+            maxLength={15}
           />
           {errors.phone && (
             <p className="text-sm text-destructive">{errors.phone.message}</p>
@@ -102,6 +165,7 @@ export function OwnerForm({ organizationId, owner }: OwnerFormProps) {
             id="alternativePhone"
             {...register("alternativePhone")}
             placeholder="(00) 00000-0000"
+            maxLength={15}
           />
         </div>
 
@@ -111,6 +175,7 @@ export function OwnerForm({ organizationId, owner }: OwnerFormProps) {
             id="cpf"
             {...register("cpf")}
             placeholder="000.000.000-00"
+            maxLength={14}
           />
         </div>
 
@@ -120,6 +185,7 @@ export function OwnerForm({ organizationId, owner }: OwnerFormProps) {
             id="cnpj"
             {...register("cnpj")}
             placeholder="00.000.000/0000-00"
+            maxLength={18}
           />
         </div>
       </div>

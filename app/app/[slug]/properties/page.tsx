@@ -1,5 +1,6 @@
 import { PropertyList } from "@/components/properties/property-list";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { getProperties } from "@/lib/actions/properties";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -18,6 +19,7 @@ interface PropertiesPageProps {
     status?: string;
     type?: string;
     highlight?: string;
+    ownerId?: string;
     sortBy?: string;
     sortOrder?: "asc" | "desc";
   };
@@ -55,8 +57,10 @@ export default async function PropertiesPage({
     status: searchParams.status as any,
     type: searchParams.type as any,
     highlight: searchParams.highlight as any,
+    ownerId: searchParams.ownerId,
     sortBy: searchParams.sortBy,
     sortOrder: searchParams.sortOrder,
+    limit: 6
   });
 
   return (
@@ -64,6 +68,9 @@ export default async function PropertiesPage({
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Imóveis</h1>
+          <p className="text-gray-600">
+            Gerencie os imóveis da sua organização ({total} imóveis)
+          </p>
         </div>
         <Button asChild>
           <Link href={`/app/${params.slug}/properties/add`}>
@@ -72,13 +79,15 @@ export default async function PropertiesPage({
           </Link>
         </Button>
       </div>
-
-      <PropertyList
-        properties={properties}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        baseUrl={`/app/${params.slug}/properties`}
-      />
+      <Card className="p-6">
+        <PropertyList
+          properties={properties}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          baseUrl={`/app/${params.slug}/properties`}
+          organizationId={organization.id}
+        />
+      </Card>
     </div>
   );
 }

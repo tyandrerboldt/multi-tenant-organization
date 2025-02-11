@@ -6,7 +6,23 @@ import { OwnerFormData } from "@/lib/validations/owner";
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
 
-export async function getOwners(organizationId: string, page = 1, limit = 10) {
+interface GetOwnersParams {
+  organizationId: string;
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+}
+
+export async function getOwners({
+  organizationId,
+  page = 1,
+  limit = 10,
+  search,
+  sortBy = "name",
+  sortOrder = "asc",
+}: GetOwnersParams) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
@@ -15,10 +31,32 @@ export async function getOwners(organizationId: string, page = 1, limit = 10) {
 
   const skip = (page - 1) * limit;
 
+  // Build where clause
+  const where = {
+    organizationId,
+    ...(search
+      ? {
+          OR: [
+            { name: { contains: search, mode: "insensitive" } },
+            { email: { contains: search, mode: "insensitive" } },
+            { phone: { contains: search } },
+          ],
+        }
+      : {}),
+  };
+
+  // Build order by
+  const orderBy: any = {};
+  if (sortBy === "properties") {
+    orderBy._count = { properties: sortOrder };
+  } else {
+    orderBy[sortBy] = sortOrder;
+  }
+
   const [owners, total] = await Promise.all([
     prisma.owner.findMany({
-      where: { organizationId },
-      orderBy: { name: "asc" },
+      where,
+      orderBy,
       skip,
       take: limit,
       include: {
@@ -28,7 +66,7 @@ export async function getOwners(organizationId: string, page = 1, limit = 10) {
       },
     }),
     prisma.owner.count({
-      where: { organizationId },
+      where,
     }),
   ]);
 
@@ -49,7 +87,7 @@ export async function getOwner(id: string) {
 
   return prisma.owner.findUnique({
     where: { id },
-    select: { id: true, name: true, email: true, phone: true }
+    select: { id: true, name: true }
   });
 }
 
@@ -116,7 +154,11 @@ export async function searchOwners(organizationId: string, search: string) {
   const owners = await prisma.owner.findMany({
     where: {
       organizationId,
-      name: { contains: search, }
+      OR: [
+        { name: { contains: search, mode: "insensitive" } },
+        { email: { contains: search, mode: "insensitive" } },
+        { phone: { contains: search } },
+      ],
     },
     take: 5,
     orderBy: { name: "asc" },
@@ -125,10 +167,6 @@ export async function searchOwners(organizationId: string, search: string) {
       name: true,
     },
   });
-
-  console.log(owners);
-  console.log(owners);
-  
 
   return owners;
 }

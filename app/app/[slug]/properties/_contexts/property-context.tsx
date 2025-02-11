@@ -1,34 +1,40 @@
 "use client";
 
-import { Property } from "@prisma/client";
+import { Organization, Property } from "@prisma/client";
 import { createContext, useContext, useState } from "react";
 
 interface PropertyContextType {
   property: Property | null;
+  organization: Organization | null;
   setProperty: (property: Property | null) => void;
-  isDirty: boolean;
-  setIsDirty: (isDirty: boolean) => void;
+  setOrganization: (organization: Organization | null) => void;
 }
 
-const PropertyContext = createContext<PropertyContextType | undefined>(undefined);
+const PropertyContext = createContext<PropertyContextType | undefined>(
+  undefined
+);
 
-export function PropertyProvider({ 
+export function PropertyProvider({
   children,
-  initialProperty = null 
-}: { 
+  initialProperty = null,
+  initialOrganization = null,
+}: {
   children: React.ReactNode;
   initialProperty?: Property | null;
+  initialOrganization?: Organization | null;
 }) {
   const [property, setProperty] = useState<Property | null>(initialProperty);
-  const [isDirty, setIsDirty] = useState(false);
+  const [organization, setOrganization] = useState<Organization | null>(initialOrganization);
 
   return (
-    <PropertyContext.Provider value={{ 
-      property, 
-      setProperty,
-      isDirty,
-      setIsDirty
-    }}>
+    <PropertyContext.Provider
+      value={{
+        property,
+        organization,
+        setOrganization,
+        setProperty,
+      }}
+    >
       {children}
     </PropertyContext.Provider>
   );

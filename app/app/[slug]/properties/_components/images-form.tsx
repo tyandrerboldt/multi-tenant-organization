@@ -2,26 +2,22 @@
 
 import { ImageUpload } from "@/components/forms/image-upload";
 import { Button } from "@/components/ui/button";
-import { useProperty } from "./property-context";
 import { uploadPropertyImages } from "@/lib/actions/properties";
 import { showToast } from "@/lib/toast";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useProperty } from "../_contexts/property-context";
 
 interface ImagesFormProps {
   organizationId: string;
 }
 
 export function ImagesForm({ organizationId }: ImagesFormProps) {
-  const { property, setIsDirty } = useProperty();
-  const [images, setImages] = useState<{ file?: File; url: string; isMain: boolean }[]>(
-    property?.images || []
-  );
+  const { property } = useProperty();
+  const [images, setImages] = useState<
+    { file?: File; url: string; isMain: boolean }[]
+  >(property?.images || []);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDirty, setFormIsDirty] = useState(false);
-
-  useEffect(() => {
-    setIsDirty(isDirty);
-  }, [isDirty, setIsDirty]);
 
   const handleImagesChange = (
     newImages: { file?: File; url: string; isMain: boolean }[]
@@ -31,7 +27,7 @@ export function ImagesForm({ organizationId }: ImagesFormProps) {
   };
 
   const handleSubmit = async () => {
-    if (!property || images.length === 0) return;
+    if (!property) return;
 
     try {
       setIsSubmitting(true);
@@ -70,12 +66,9 @@ export function ImagesForm({ organizationId }: ImagesFormProps) {
         existingImages={property?.images}
         onImagesChange={handleImagesChange}
       />
-      
+
       <div className="flex justify-end">
-        <Button 
-          onClick={handleSubmit}
-          disabled={isSubmitting || !isDirty}
-        >
+        <Button onClick={handleSubmit} disabled={isSubmitting || !isDirty}>
           {isSubmitting ? "Salvando..." : "Salvar imagens"}
         </Button>
       </div>

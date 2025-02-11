@@ -10,23 +10,22 @@ interface BreadcrumbItem {
 }
 
 const translations: Record<string, string> = {
-  // Páginas principais
   account: "Conta",
-  // "hero-slides": "Destaques",
   preferences: "Preferências",
   settings: "Configurações",
   billing: "Planos",
   roles: "Regras de Acesso",
   properties: "Imóveis",
   owners: "Proprietários",
+  features: "Características",
+  images: "Imagens",
+  address: "Endereço",
 
-  // Subpáginas
   new: "Novo",
   edit: "Editar",
   "package-types": "Tipos de Pacote",
   "article-categories": "Categorias de Artigo",
 
-  // Estados
   draft: "Rascunho",
   active: "Ativo",
   inactive: "Inativo",
