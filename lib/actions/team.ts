@@ -194,3 +194,59 @@ export async function removeMember(organizationId: string, memberId: string) {
   revalidatePath(`/app/${organizationId}/team`)
   return { success: true }
 }
+
+export async function searchCapturers(
+  organizationId: string,
+  search: string,
+  memberId?: string
+) {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.id) {
+    throw new Error("Não autorizado");
+  }
+
+  const where = {
+    organizationId,
+    customRole: {
+      permissions: {
+        some: {
+          resource: "property",
+          actions: { has: "capture" },
+        },
+      },
+    },
+    ...(memberId
+      ? { id: memberId }
+      : search
+      ? {
+          OR: [
+            { user: { name: { contains: search, mode: "insensitive" } } },
+            { user: { email: { contains: search, mode: "insensitive" } } },
+          ],
+        }
+      : {}),
+  };
+
+  const capturers = await prisma.membership.findMany({
+    where,
+    select: {
+      id: true,
+      user: {
+        select: {
+          name: true,
+          email: true,
+          image: true,
+        },
+      },
+    },
+    take: memberId ? 1 : 5,
+    orderBy: {
+      user: {
+        name: "asc",
+      },
+    },
+  });
+
+  return capturers;
+}

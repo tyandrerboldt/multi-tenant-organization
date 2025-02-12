@@ -113,6 +113,7 @@ export async function updatePropertyGeneral(
       enableSale: data.enableSale,
       enableRent: data.enableRent,
       situation: data.situation,
+      ...(data.capturerId !== undefined ? { capturerId: data.capturerId || null } : {}),
     },
   });
 
@@ -310,7 +311,7 @@ export async function getProperties({
   ]);
 
   return {
-    properties,
+    properties: JSON.parse(JSON.stringify(properties)),
     totalPages: Math.ceil(total / limit),
     currentPage: page,
     total,

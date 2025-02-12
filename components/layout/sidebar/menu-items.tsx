@@ -56,14 +56,14 @@ export const createMenuItems = (organizationSlug: string): MenuItem[] => [
         href: `/app/${organizationSlug}/settings/domains`,
       },
       {
-        label: "Planos",
-        icon: DollarSign,
-        href: `/app/${organizationSlug}/settings/billing`,
-      },
-      {
         label: "Regras de Acesso",
         icon: Shield,
         href: `/app/${organizationSlug}/settings/roles`,
+      },
+      {
+        label: "Assinatura",
+        icon: DollarSign,
+        href: `/app/${organizationSlug}/settings/billing`,
       },
     ],
   },

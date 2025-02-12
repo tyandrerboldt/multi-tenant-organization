@@ -4,6 +4,7 @@ import {
   CommercialFeaturesFormData,
   commercialFeaturesSchema,
 } from "@/app/app/[slug]/properties/[code]/features/_schemas/commercial";
+import { CurrencyInput } from "@/components/shared/currency-input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -20,6 +21,7 @@ import {
   COMMERCIAL_TYPES,
   GARAGE_OPTIONS,
 } from "@/domain/data/property-features";
+import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -116,31 +118,33 @@ export function CommercialTab({ features, onSubmit }: CommercialTabProps) {
           </div>
 
           <div className="space-y-2">
-            <Label>IPTU Mensal (R$)</Label>
-            <Input
-              type="number"
-              {...register("iptu")}
-              placeholder="0.00"
-              step="0.01"
+            <Label htmlFor="iptu">IPTU Mensal</Label>
+            <Controller
+              name="iptu"
+              control={control}
+              render={({ field }) => (
+                <CurrencyInput
+                  value={field.value || 0}
+                  onChange={field.onChange}
+                  className={cn(errors.iptu && "border-red-500")}
+                />
+              )}
             />
-            {errors.iptu && (
-              <p className="text-sm text-destructive">{errors.iptu.message}</p>
-            )}
           </div>
 
           <div className="space-y-2">
-            <Label>Valor do Condomínio (R$)</Label>
-            <Input
-              type="number"
-              {...register("condominio")}
-              placeholder="0.00"
-              step="0.01"
+            <Label htmlFor="condominio">Valor do condomínio</Label>
+            <Controller
+              name="condominio"
+              control={control}
+              render={({ field }) => (
+                <CurrencyInput
+                  value={field.value || 0}
+                  onChange={field.onChange}
+                  className={cn(errors.condominio && "border-red-500")}
+                />
+              )}
             />
-            {errors.condominio && (
-              <p className="text-sm text-destructive">
-                {errors.condominio.message}
-              </p>
-            )}
           </div>
         </div>
 

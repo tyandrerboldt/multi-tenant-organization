@@ -68,6 +68,7 @@ export const propertySchema = z.object({
   categoryId: z.number().default(1),
   description: z.string().min(10, "Descrição deve ter pelo menos 10 caracteres"),
   ownerId: z.string().min(1, "Proprietário é obrigatório"),
+  capturerId: z.string().optional().nullable(),
   enableRent: z.boolean(),
   enableSale: z.boolean(),
   rentalValue: z.preprocess((val) => Number(val), z.number().min(0).optional()),

@@ -13,7 +13,7 @@ const translations: Record<string, string> = {
   account: "Conta",
   preferences: "Preferências",
   settings: "Configurações",
-  billing: "Planos",
+  billing: "Assinatura",
   roles: "Regras de Acesso",
   properties: "Imóveis",
   owners: "Proprietários",

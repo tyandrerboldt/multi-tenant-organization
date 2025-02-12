@@ -34,9 +34,6 @@ export function PlanCard({
     if (isCurrentPlan) {
       return hasActiveSubscription ? "Plano Atual" : "Selecionar Plano"
     }
-    if (hasActiveSubscription && currentPlan != "FREE") {
-      return plan.price === 0 ? "Fazer Downgrade" : "Fazer Upgrade"
-    }
     return "Selecionar Plano"
   }
 

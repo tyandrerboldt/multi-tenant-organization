@@ -99,6 +99,7 @@ model Membership {
   customRoleId   String?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+  capturedProperties Property[] @relation("PropertyCapturer")
 
   @@unique([userId, organizationId])
   @@index([organizationId])
@@ -159,6 +160,7 @@ model Permission {
   @@index([userId])
 }
 
+
 model Property {
   id              String           @id @default(cuid())
   code            String           @default(nanoid(6))
@@ -173,24 +175,26 @@ model Property {
   organizationId  String
   owner           Owner?           @relation(fields: [ownerId], references: [id])
   ownerId         String?
+  capturer        Membership?      @relation("PropertyCapturer", fields: [capturerId], references: [id])
+  capturerId      String?
   images          PropertyImage[]
-  // features        Feature[]
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   PropertyAddress PropertyAddress?
   PropertyFeature PropertyFeature?
 
-  situation   PropertySituation?
+  situation    PropertySituation?
 
-  enableRent  Boolean            @default(false)
-  enableSale  Boolean            @default(false)
-  rentalValue Decimal?
-  saleValue   Decimal?
+  enableRent   Boolean            @default(false)
+  enableSale   Boolean            @default(false)
+  rentalValue  Decimal?
+  saleValue    Decimal?
 
   @@unique([slug, categoryId])
   @@unique([code, organizationId])
   @@index([organizationId])
   @@index([ownerId])
+  @@index([capturerId])
 }
 
 model PropertyFeature {

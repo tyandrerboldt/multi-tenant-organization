@@ -51,6 +51,7 @@ const RESOURCES = [
     name: "Imóveis",
     value: "property" as const,
     actions: [
+      { name: "Captar", value: "capture" as const },
       { name: "Visualizar", value: "read" as const },
       { name: "Criar", value: "create" as const },
       { name: "Atualizar", value: "update" as const },

@@ -1,5 +1,15 @@
 "use client";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -18,16 +28,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { deleteProperty } from "@/lib/actions/properties";
 import { showToast } from "@/lib/toast";
 import {
@@ -38,10 +38,27 @@ import {
   statusLabels,
 } from "@/lib/types/properties";
 import { Property } from "@prisma/client";
-import { ArrowUpDown, Building2, Home, LayoutGrid, Pencil, Trash2, X } from "lucide-react";
+import {
+  ArrowUpDown,
+  Building2,
+  Home,
+  LayoutGrid,
+  Pencil,
+  Trash2,
+  X,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { Badge } from "../ui/badge";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../ui/pagination";
 import { OwnerSelect } from "./owner-select";
 
 interface PropertyListProps {
@@ -72,7 +89,9 @@ export function PropertyList({
     searchParams.get("highlight") === "FEATURED" ||
       searchParams.get("highlight") === "MAIN"
   );
-  const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(
+    null
+  );
   const [isDeleting, setIsDeleting] = useState(false);
 
   const updateFilters = ({
@@ -105,6 +124,9 @@ export function PropertyList({
     if (sortOrder !== undefined) params.set("sortOrder", sortOrder);
     if (page !== undefined) params.set("page", page.toString());
 
+    if(status === "ALL") params.delete("status")
+    if(type === "ALL") params.delete("type")
+
     router.push(`${baseUrl}?${params.toString()}`);
   };
 
@@ -116,6 +138,10 @@ export function PropertyList({
       currentSortBy === field && currentSortOrder === "asc" ? "desc" : "asc";
 
     updateFilters({ sortBy: field, sortOrder: newSortOrder });
+  };
+
+  const handlePageChange = (page: number) => {
+    updateFilters({ page });
   };
 
   const clearFilters = () => {
@@ -155,6 +181,31 @@ export function PropertyList({
       default:
         return <LayoutGrid className="h-5 w-5" />;
     }
+  };
+
+  const getStatusBadge = (status: Status) => {
+    const variants = {
+      [Status.DRAFT]: "secondary",
+      [Status.ACTIVE]: "success",
+      [Status.INACTIVE]: "warning",
+      [Status.UNAVAILABLE]: "destructive",
+    } as const;
+
+    return <Badge variant={variants[status]}>{statusLabels[status]}</Badge>;
+  };
+
+  const getHighlightBadge = (highlight: string) => {
+    const variants = {
+      NORMAL: "secondary",
+      FEATURED: "warning",
+      MAIN: "success",
+    } as const;
+
+    return (
+      <Badge variant={variants[highlight]}>
+        {highlightStatusLabels[highlight]}
+      </Badge>
+    );
   };
 
   return (
@@ -255,25 +306,31 @@ export function PropertyList({
           <TableHeader>
             <TableRow>
               <TableHead>
-                <Button variant="ghost" onClick={() => handleSort("name")}>
+                <Button variant="link" className="p-0" onClick={() => handleSort("name")}>
                   Nome
                   <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
               <TableHead>
-                <Button variant="ghost" onClick={() => handleSort("type")}>
+                <Button variant="link" className="p-0" onClick={() => handleSort("code")}>
+                  Código
+                  <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+              </TableHead>
+              <TableHead>
+                <Button variant="link" className="p-0" onClick={() => handleSort("type")}>
                   Tipo
                   <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
               <TableHead>
-                <Button variant="ghost" onClick={() => handleSort("status")}>
+                <Button variant="link" className="p-0" onClick={() => handleSort("status")}>
                   Status
                   <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
               <TableHead>
-                <Button variant="ghost" onClick={() => handleSort("highlight")}>
+                <Button variant="link" className="p-0" onClick={() => handleSort("highlight")}>
                   Destaque
                   <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
@@ -290,21 +347,24 @@ export function PropertyList({
                       <img
                         src={property.images[0].url}
                         alt={property.name}
-                        className="h-10 w-10 rounded-md object-cover"
+                        className="h-14 w-20 rounded-md object-cover"
                       />
                     ) : (
-                      <div className="h-10 w-10 rounded-md bg-muted flex items-center justify-center">
+                      <div className="h-12 w-20 rounded-md bg-muted flex items-center justify-center">
                         {getPropertyIcon(property.type as PropertyType)}
                       </div>
                     )}
                     <span>{property.name}</span>
                   </div>
                 </TableCell>
+                <TableCell>{property.code}</TableCell>
                 <TableCell>
                   {propertyTypeLabels[property.type as PropertyType]}
                 </TableCell>
-                <TableCell>{statusLabels[property.status as Status]}</TableCell>
-                <TableCell>{highlightStatusLabels[property.highlight]}</TableCell>
+                <TableCell>
+                  {getStatusBadge(property.status as Status)}
+                </TableCell>
+                <TableCell>{getHighlightBadge(property.highlight)}</TableCell>
                 <TableCell className="text-right space-x-2">
                   <Button variant="ghost" size="sm" asChild>
                     <Link href={`${baseUrl}/${property.code}`}>
@@ -324,7 +384,7 @@ export function PropertyList({
 
             {properties.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
+                <TableCell colSpan={6} className="h-24 text-center">
                   Nenhum imóvel encontrado
                 </TableCell>
               </TableRow>
@@ -333,20 +393,38 @@ export function PropertyList({
         </Table>
       </div>
 
-      {totalPages > 1 && (
-        <div className="flex justify-center gap-2">
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <Button
-              key={page}
-              variant={currentPage === page ? "default" : "outline"}
-              size="sm"
-              onClick={() => updateFilters({ page })}
-            >
-              {page}
-            </Button>
-          ))}
-        </div>
-      )}
+      <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() =>
+                  currentPage > 1 && handlePageChange(currentPage - 1)
+                }
+              />
+            </PaginationItem>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <PaginationItem key={page}>
+                <PaginationLink
+                  isActive={page === currentPage}
+                  onClick={() => handlePageChange(page)}
+                >
+                  {page}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+
+            <PaginationItem>
+              <PaginationNext
+                onClick={() =>
+                  currentPage < totalPages && handlePageChange(currentPage + 1)
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </div>
 
       <AlertDialog
         open={!!selectedPropertyId}
