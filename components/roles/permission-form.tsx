@@ -48,6 +48,16 @@ const RESOURCES = [
     ],
   },
   {
+    name: "Quadros",
+    value: "boards" as const,
+    actions: [
+      { name: "Visualizar", value: "read" as const },
+      { name: "Criar", value: "create" as const },
+      { name: "Atualizar", value: "update" as const },
+      { name: "Remover", value: "delete" as const },
+    ],
+  },
+  {
     name: "Imóveis",
     value: "property" as const,
     actions: [

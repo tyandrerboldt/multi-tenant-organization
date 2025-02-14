@@ -71,35 +71,18 @@ enum Theme {
   system
 }
 
-model Organization {
-  id                   String            @id @default(cuid())
-  name                 String
-  slug                 String            @unique
-  plan                 Plan              @default(FREE)
-  stripeCustomerId     String?           @unique
-  stripeSubscriptionId String?           @unique
-  memberships          Membership[]
-  domains              Domain[]
-  userPreferences      UserPreferences[]
-  customRoles          CustomRole[]
-  createdAt            DateTime          @default(now())
-  updatedAt            DateTime          @updatedAt
-  Property             Property[]
-  owners               Owner[]
-}
-
 model Membership {
-  id             String       @id @default(cuid())
-  role           Role
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId         String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId String
-  customRole     CustomRole?  @relation(fields: [customRoleId], references: [id])
-  customRoleId   String?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  capturedProperties Property[] @relation("PropertyCapturer")
+  id                 String       @id @default(cuid())
+  role               Role
+  user               User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId             String
+  organization       Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId     String
+  customRole         CustomRole?  @relation(fields: [customRoleId], references: [id])
+  customRoleId       String?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  capturedProperties Property[]   @relation("PropertyCapturer")
 
   @@unique([userId, organizationId])
   @@index([organizationId])
@@ -160,7 +143,6 @@ model Permission {
   @@index([userId])
 }
 
-
 model Property {
   id              String           @id @default(cuid())
   code            String           @default(nanoid(6))
@@ -183,12 +165,12 @@ model Property {
   PropertyAddress PropertyAddress?
   PropertyFeature PropertyFeature?
 
-  situation    PropertySituation?
+  situation PropertySituation?
 
-  enableRent   Boolean            @default(false)
-  enableSale   Boolean            @default(false)
-  rentalValue  Decimal?
-  saleValue    Decimal?
+  enableRent  Boolean  @default(false)
+  enableSale  Boolean  @default(false)
+  rentalValue Decimal?
+  saleValue   Decimal?
 
   @@unique([slug, categoryId])
   @@unique([code, organizationId])
@@ -407,4 +389,72 @@ model PropertyAddress {
   @@index([propertyId])
   @@index([addressId])
   @@map("property_addresses")
+}
+
+model Organization {
+  id                   String   @id @default(cuid())
+  name                 String
+  slug                 String   @unique
+  plan                 Plan     @default(FREE)
+  stripeCustomerId     String?  @unique
+  stripeSubscriptionId String?  @unique
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  memberships     Membership[]
+  domains         Domain[]
+  customRoles     CustomRole[]
+  properties      Property[]
+  owners          Owner[]
+  kanbanBoards    KanbanBoard[]
+  UserPreferences UserPreferences[]
+}
+
+model KanbanBoard {
+  id             String         @id @default(cuid())
+  name           String
+  description    String?
+  organizationId String
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  columns        KanbanColumn[]
+
+  @@index([organizationId])
+}
+
+model KanbanColumn {
+  id             String      @id @default(cuid())
+  name           String
+  color          String?
+  order          Int
+  boardId        String
+  organizationId String
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  board          KanbanBoard @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  cards          Card[]
+
+  @@index([boardId])
+  @@index([organizationId])
+}
+
+model Card {
+  id             String   @id @default(cuid())
+  name           String
+  description    String?
+  notes          String?
+  order          Int
+  columnId       String
+  organizationId String
+  propertyId     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  column KanbanColumn @relation(fields: [columnId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([columnId])
+  @@index([propertyId])
+  @@map("Lead")
 }

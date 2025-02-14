@@ -3,6 +3,7 @@
 import {
   Building2,
   DollarSign,
+  FolderKanban,
   Globe,
   Home,
   LayoutDashboard,
@@ -34,6 +35,12 @@ export const createMenuItems = (organizationSlug: string): MenuItem[] => [
         href: `/app/${organizationSlug}/properties/owners`,
       },
     ],
+  },
+  {
+    label: "Quadros",
+    icon: FolderKanban,
+    href: `/app/${organizationSlug}/boards`,
+    resource: "boards",
   },
   {
     label: "Equipe",

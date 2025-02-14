@@ -49,9 +49,9 @@ export default async function OrganizationLayout({
             </div>
           </div>
           <main className="flex-1 overflow-y-auto bg-gray-100 dark:bg-inherit">
-            <div className="container mx-auto p-4 py-6">
+            <div className="container h-full mx-auto p-4 py-6">
               <Breadcrumbs />
-              <div className="mt-10">{children}</div>
+              {children}
             </div>
           </main>
         </div>
