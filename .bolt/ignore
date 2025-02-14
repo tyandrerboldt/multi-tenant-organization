@@ -1,2 +1,13 @@
 components/ui/*
 hooks/use-toast.ts
+app/app/(global)/*
+app/create-organization/*
+app/login/*
+app/register/*
+app/reset-password/*
+components/billing/*
+components/domains/*
+components/organizations/*
+components/properties/*
+components/roles/*
+components/team/*
